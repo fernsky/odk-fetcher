@@ -10,5 +10,5 @@ export const minio = new Minio.Client({
   port: parseInt(env.MINIO_PORT),
   accessKey: env.MINIO_CLIENT_ACCESS_KEY,
   secretKey: env.MINIO_CLIENT_SECRET_KEY,
-  useSSL: true,
+  useSSL: env.MINIO_USE_SSL === 'true',
 });
