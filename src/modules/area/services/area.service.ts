@@ -9,7 +9,7 @@ import {
   DuplicateAreaCodeException,
   InvalidGeometryException,
 } from '../exceptions/area.exception';
-import { nanoid } from 'nanoid';
+import * as nanoid from 'nanoid';
 
 @Injectable()
 export class AreaService {
@@ -34,7 +34,7 @@ export class AreaService {
       const [area] = await this.db
         .insert(schema.areas)
         .values({
-          id: nanoid(),
+          id: nanoid.nanoid(),
           code: dto.code,
           wardNumber: dto.wardNumber,
           geometry: sql`ST_GeomFromGeoJSON(${geoJson})`,

@@ -10,7 +10,8 @@ import {
   InvalidCredentialsException,
   UserAlreadyExistsException,
 } from '../../common/exceptions/auth.exception';
-import { nanoid } from 'nanoid';
+import * as nanoid from 'nanoid';
+
 import type { NewUser } from '../drizzle/schema';
 
 @Injectable()
@@ -33,7 +34,7 @@ export class AuthService {
       }
 
       const newUser: NewUser = {
-        id: nanoid(),
+        id: nanoid.nanoid(),
         email: dto.email,
         password: await bcrypt.hash(dto.password, 10),
         name: dto.name,
