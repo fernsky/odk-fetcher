@@ -1,0 +1,22 @@
+FROM node:20-alpine
+
+# Install git, curl and yarn
+RUN apk add --no-cache git curl openssh-client
+RUN npm install -g @nestjs/cli
+
+WORKDIR /app
+
+# Copy package files and yarn.lock
+COPY package.json yarn.lock ./
+
+# Install all dependencies (including devDependencies)
+RUN yarn install
+
+# Copy the rest of the application
+COPY . .
+
+# Expose development port
+EXPOSE 3000
+
+# Start the application in development mode with hot-reload
+CMD ["yarn", "start:dev"]
