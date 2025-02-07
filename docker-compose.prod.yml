@@ -1,11 +1,8 @@
-version: '3.8'
-
 services:
-  api:
-    build:
-      context: .
-      dockerfile: Dockerfile.prod
-      target: production
+  odk-fetcher:
+    image: isresearch/odk-fetcher:latest
+    container_name: odk-fetcher
+    restart: always
     ports:
       - '3000:3000'
     environment:
@@ -14,21 +11,22 @@ services:
       - DATABASE_URL=${DATABASE_URL}
       - JWT_SECRET=${JWT_SECRET}
       - JWT_EXPIRES_IN=${JWT_EXPIRES_IN}
+      - BUDDHASHANTI_DATABASE_URL=${BUDDHASHANTI_DATABASE_URL}
+      - KERABARI_DATABASE_URL=${KERABARI_DATABASE_URL}
+      - KERABARI_BUCKET_NAME=${KERABARI_BUCKET_NAME}
+      - BUDDHASHANTI_BUCKET_NAME=${BUDDHASHANTI_BUCKET_NAME}
+      - MINIO_ENDPOINT=${MINIO_ENDPOINT}
+      - MINIO_PORT=${MINIO_PORT}
+      - MINIO_CLIENT_ACCESS_KEY=${MINIO_CLIENT_ACCESS_KEY}
+      - MINIO_CLIENT_SECRET_KEY=${MINIO_CLIENT_SECRET_KEY}
+    volumes:
+      - /var/log/odk-fetcher:/var/log/odk-fetcher
     healthcheck:
       test: ['CMD', 'curl', '-f', 'http://localhost:3000/v1/health']
       interval: 30s
       timeout: 3s
       retries: 3
       start_period: 30s
-    restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          cpus: '1'
-          memory: 1G
-        reservations:
-          cpus: '0.5'
-          memory: 512M
 
 networks:
   default:
