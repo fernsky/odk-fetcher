@@ -28,7 +28,6 @@ import { WardModule } from './modules/ward/ward.module';
 import { AreaModule } from './modules/area/area.module';
 import { OdkModule } from './modules/odk/odk.module';
 import configuration from './config/configuration';
-import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
@@ -58,7 +57,6 @@ import { HealthModule } from './health/health.module';
       }),
     }),
     AuthModule,
-    HealthModule,
     WardModule, // Add this line
     AreaModule,
     OdkModule,
