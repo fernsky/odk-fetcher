@@ -152,4 +152,67 @@ export class OdkController {
       });
     }
   }
+
+  @Get('gadhawa')
+  async getGadhawaData() {
+    return this.odkService.getGadhawaData();
+  }
+
+  @Get('gadhawa/fetch-status')
+  getGadhawaFetchStatus(@Query('id') formId: string) {
+    return (
+      this.fetchLocks.get(formId) || {
+        status: 'COMPLETED',
+        message: 'No active fetch',
+      }
+    );
+  }
+
+  @Post('gadhawa/fetch-submissions')
+  async fetchGadhawaSubmissions(@Body() input: FetchSubmissionsDto) {
+    if (this.fetchLocks.get(input.id)?.status === 'IN_PROGRESS') {
+      throw new HttpException(
+        'Fetch operation already in progress for this form',
+        HttpStatus.CONFLICT,
+      );
+    }
+
+    this.fetchLocks.set(input.id, {
+      status: 'INITIATED',
+      message: 'Starting fetch operation',
+      timestamp: new Date(),
+    });
+
+    this.startGadhawaFetch(input);
+
+    return {
+      message: 'Fetch operation initiated',
+      status: 'INITIATED',
+      checkStatusAt: `/odk/gadhawa/fetch-status?id=${input.id}`,
+    };
+  }
+
+  private async startGadhawaFetch(input: FetchSubmissionsDto) {
+    try {
+      this.fetchLocks.set(input.id, {
+        status: 'IN_PROGRESS',
+        message: 'Fetching submissions',
+        timestamp: new Date(),
+      });
+
+      await this.odkService.fetchGadhawaSubmissions(input);
+
+      this.fetchLocks.set(input.id, {
+        status: 'COMPLETED',
+        message: 'Fetch operation completed successfully',
+        timestamp: new Date(),
+      });
+    } catch (error) {
+      this.fetchLocks.set(input.id, {
+        status: 'ERROR',
+        message: `Error during fetch: ${error}`,
+        timestamp: new Date(),
+      });
+    }
+  }
 }
