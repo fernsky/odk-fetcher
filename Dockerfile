@@ -42,8 +42,8 @@ ENV PORT=3000
 EXPOSE 3000
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=30s \
-    CMD curl -f http://localhost:3000/v1/health || exit 1
+# HEALTHCHECK --interval=30s --timeout=3s --start-period=30s \
+#     CMD curl -f http://localhost:3000/v1/health || exit 1
 
 # Start the application with the correct path
 CMD ["node", "dist/src/main.js"]
