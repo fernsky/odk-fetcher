@@ -4,11 +4,11 @@ import { env } from 'process';
 dotenv.config();
 
 export default defineConfig({
-  schema: './src/modules/drizzle/kerabari-db/schema/**/*.ts',
-  out: './kerabari-migration',
+  schema: './src/modules/drizzle/gadhawa-db/schema/**/*.ts',
+  out: './gadhawa-migration',
   dialect: 'postgresql',
   dbCredentials: {
-    url: env.KERABARI_DATABASE_URL!,
+    url: env.GADHAWA_DATABASE_URL!,
   },
   extensionsFilters: ['postgis'],
   tablesFilter: [`acme_*`],
