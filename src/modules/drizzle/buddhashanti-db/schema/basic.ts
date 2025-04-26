@@ -162,6 +162,7 @@ export const surveyData = pgTable('odk_survey_data', {
   formId: varchar('form_id', { length: 255 })
     .notNull()
     .references(() => surveyForms.id),
+  dataId: varchar('data_id', { length: 55 }),
   data: json('data').notNull(),
   created_at: timestamp('created_at').defaultNow().notNull(),
   updated_at: timestamp('updated_at').$onUpdate(() => new Date()),

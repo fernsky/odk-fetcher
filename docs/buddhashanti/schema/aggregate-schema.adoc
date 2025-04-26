@@ -1,0 +1,61 @@
+== Aggregate Building Schema
+
+`building_survey_date` Date
+`building_submission_date` Date
+`enumerator_id` String
+`enumerator_name` String
+`enumerator_phone` String
+
+
+`ward_number` Number
+`area_code` Number
+`locality` String
+
+`building_token` String
+`building_owner_name` String
+`building_owner_phone` String
+
+`total_families` Number
+`total_businesses` Number
+
+// Building GPS
+`building_gps_latitude` Decimal
+`building_gps_longitude` Decimal
+`building_gps_altitude` Decimal
+`building_gps_accuracy` Decimal
+
+`building_ownership_status` String
+`building_ownership_status_other` String
+`building_base` String
+`building_base_other` String
+`building_outer_wall` String
+`building_outer_wall_other` String
+`building_roof` String
+`building_roof_other` String
+`natural_disasters` String[]
+`natural_disasters_other` String
+
+// Building Media
+
+`building_image_key` String
+`building_enumerator_selfie_key` String
+`building_audio_recording_key` String
+
+// Households
+
+households: Household[]
+
+=== Household Schema
+
+`household_survey_date` Date
+`household_submission_date` Date
+
+
+// Household GPS
+`household_gps_latitude` Decimal
+`household_gps_longitude` Decimal
+`household_gps_altitude` Decimal
+`household_gps_accuracy` Decimal
+
+`household_locality` String
+`household_development_organization` String
