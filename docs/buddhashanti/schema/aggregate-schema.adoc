@@ -44,6 +44,7 @@
 // Households
 
 households: Household[]
+businesses: Business[]
 
 === Household Schema
 
@@ -59,3 +60,28 @@ households: Household[]
 
 `household_locality` String
 `household_development_organization` String
+
+// Household Media
+
+`household_image_key` String
+`household_enumerator_selfie_key` String
+`household_audio_recording_key` String
+
+
+=== Business Schema
+
+`business_survey_date` Date
+`business_submission_date` Date
+
+// Business GPS
+`business_gps_latitude` Decimal
+`business_gps_longitude` Decimal
+`business_gps_altitude` Decimal
+`business_gps_accuracy` Decimal
+
+`business_locality` String
+
+// Business Media
+`business_image_key` String
+`business_enumerator_selfie_key` String
+`business_audio_recording_key` String
