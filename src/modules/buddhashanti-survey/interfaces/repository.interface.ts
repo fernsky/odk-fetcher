@@ -1,7 +1,10 @@
 import {
-  HouseholdData,
-  BusinessData,
+  BuddhashantiAggregateBuilding,
+  NewBuddhashantiAggregateBuilding,
 } from '../model/buddhashanti-aggregate-buildings';
+import { RawBuildingData } from '../../odk/buddhashanti-services/parser/parse-buildings';
+import { RawFamily } from '../../odk/buddhashanti-services/parser/family/types';
+import { RawBusiness } from '../../odk/buddhashanti-services/parser/business/types';
 
 export interface PaginationOptions {
   cursor?: string;
@@ -14,54 +17,24 @@ export interface PaginatedResult<T> {
   hasMore: boolean;
 }
 
-export interface BuildingData {
-  id: string;
-  formId: string;
-  data: Record<string, any>;
-  created_at: Date;
-  updated_at: Date;
-}
-
-export interface FamilyData {
-  id: string;
-  formId: string;
-  data: Record<string, any>;
-  created_at: Date;
-  updated_at: Date;
-}
-
-export interface BusinessFormData {
-  id: string;
-  formId: string;
-  data: Record<string, any>;
-  created_at: Date;
-  updated_at: Date;
-}
-
+// Use the correct raw data types from the parser modules
 export interface BuildingSurveyRepository {
   findBuildingSurveys(
     options: PaginationOptions,
-  ): Promise<PaginatedResult<BuildingData>>;
-  findFamilySurveys(): Promise<FamilyData[]>;
-  findBusinessSurveys(): Promise<BusinessFormData[]>;
+  ): Promise<PaginatedResult<RawBuildingData>>;
+  findFamilySurveys(): Promise<RawFamily[]>;
+  findBusinessSurveys(): Promise<RawBusiness[]>;
 }
 
 export interface BuildingAggregateRepository {
-  saveAggregateBuilding(buildingData: {
-    id: string;
-    buildingId: string;
-    buildingToken: string;
-    wardNumber: number;
-    areaCode: number;
-    locality: string;
-    totalFamilies: number;
-    totalBusinesses: number;
-    // Other required fields from schema
-    households: HouseholdData[];
-    businesses: BusinessData[];
-    [key: string]: any;
-  }): Promise<void>;
-
-  findByBuildingToken(buildingToken: string): Promise<any | null>;
-  updateAggregateBuilding(id: string, data: Partial<any>): Promise<void>;
+  saveAggregateBuilding(
+    buildingData: NewBuddhashantiAggregateBuilding,
+  ): Promise<void>;
+  findByBuildingToken(
+    buildingToken: string,
+  ): Promise<BuddhashantiAggregateBuilding | null>;
+  updateAggregateBuilding(
+    id: string,
+    data: Partial<BuddhashantiAggregateBuilding>,
+  ): Promise<void>;
 }
