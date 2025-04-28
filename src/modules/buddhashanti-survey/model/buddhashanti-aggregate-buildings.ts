@@ -36,13 +36,13 @@ export type BusinessData = {
   business_audio_recording_key?: string;
 };
 
-// Staging table for aggregated building data
-export const stagingBuddhashantiAggregateBuilding = pgTable(
+//  Aggregated building data
+export const buddhashantiAggregateBuilding = pgTable(
   'buddhashanti_aggregate_buildings',
   {
     // Primary identifier
-    id: varchar('id', { length: 48 }).primaryKey().notNull(),
-    buildingId: varchar('building_id', { length: 48 }).notNull(),
+    id: varchar('id', { length: 48 }).primaryKey(),
+    buildingId: varchar('building_id', { length: 48 }),
 
     // Dates and enumerator info
     buildingSurveyDate: timestamp('building_survey_date'),
@@ -115,3 +115,9 @@ export const stagingBuddhashantiAggregateBuilding = pgTable(
     updatedAt: timestamp('updated_at').$onUpdate(() => new Date()),
   },
 );
+
+export type BuddhashantiAggregateBuilding =
+  typeof buddhashantiAggregateBuilding.$inferSelect;
+
+export type NewBuddhashantiAggregateBuilding =
+  typeof buddhashantiAggregateBuilding.$inferInsert;

@@ -1,0 +1,14 @@
+=== Parser Workflow
+
+- On hitting the endpoint `/aggregate-buildings`, the request is sent to the `AggregationController`.
+- The aggregation controller calls the `BuildingAggregateService` which works the following way.
+- If a job for aggregation is already running, it will return a 409 error.
+- If no job is running, it will create a new job and start the aggregation process.
+
+==== Aggregation Process
+
+The building aggregation service will need to parse all the buildings present which works the following way.
+- First all buildings are fetched from `acme_odk_survey_data` where `form_id` is `buddhashanti_building_survey` where the parser is run on the basis of a cursor based pagination, parsing one record at a time.
+- Then the acme_odk_survey_data is quried for all the records where `form_id` is `buddhashanti_family_survey`. Each family record is parsed and evaluated against the building record. Few things need to be coorelated here.
+ i. The `building_token` in the family record should be equal to the `building_token` in the building record. If the building token is not equal, a similarity score is checked to check the coorelation betwen the token, if that passes greater than 0.2, then the family record is added to the building record.
+- Then the business records are handled in a similar way.

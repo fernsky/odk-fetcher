@@ -166,6 +166,9 @@ export const surveyData = pgTable('odk_survey_data', {
   data: json('data').notNull(),
   created_at: timestamp('created_at').defaultNow().notNull(),
   updated_at: timestamp('updated_at').$onUpdate(() => new Date()),
+  // The isParsed field is used to check if the data has been parsed or not.
+  // If it is true, then the data has been parsed and is skipped.
+  isParsed: boolean('is_parsed').default(false),
 });
 
 export const attachmentTypesEnum = pgEnum('attachment', [
