@@ -15,10 +15,10 @@ export class ParserServiceImpl implements ParserService {
       this.logger.log(
         `Starting to parse building data with ID: ${buildingData.__id || 'unknown'}`,
       );
-      this.logger.debug('Building data input:', buildingData);
+      this.logger.debug('Building data input:', buildingData.data);
 
       // Handle building data in the format from the sample data
-      const formData = buildingData;
+      const formData = buildingData.data;
 
       // Process location data
       let gpsData = {
@@ -182,10 +182,10 @@ export class ParserServiceImpl implements ParserService {
       this.logger.log(
         `Starting to parse household data with ID: ${householdData.__id || 'unknown'}`,
       );
-      this.logger.debug('Household data input:', householdData);
+      this.logger.debug('Household data input:', householdData.data);
 
       // Handle household data in the format from family sample data
-      const formData = householdData;
+      const formData = householdData.data;
 
       // Process GPS data from the id.tmp_location or id.location
       let gpsData = {
@@ -278,10 +278,10 @@ export class ParserServiceImpl implements ParserService {
       this.logger.log(
         `Starting to parse business data with ID: ${businessData.__id || 'unknown'}`,
       );
-      this.logger.debug('Business data input:', businessData);
+      this.logger.debug('Business data input:', businessData.data);
 
       // Handle business data in the format from the business sample data
-      const formData = businessData;
+      const formData = businessData.data;
 
       // Process GPS data from b_location
       let gpsData = {

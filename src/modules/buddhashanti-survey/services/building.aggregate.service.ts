@@ -1,29 +1,26 @@
 import { Injectable, Logger, ConflictException } from '@nestjs/common';
-import {
-  BuildingAggregateService,
-  AggregationResult,
-} from '../interfaces/service.interface';
-import { JobRepository, JobStatus } from '../interfaces/job.interface';
-import { BuildingSurveyRepository } from '../interfaces/repository.interface';
-import { BuildingAggregateRepository } from '../interfaces/repository.interface';
-import { ParserService } from '../interfaces/service.interface';
 import { v4 as uuidv4 } from 'uuid';
+import { JobStatus } from '../interfaces/job.interface';
+import { JobRepositoryImpl } from '../repository/job.repository';
+import { BuildingSurveyRepositoryImpl } from '../repository/building.form.repository';
+import { BuildingAggregateRepositoryImpl } from '../repository/building.aggregate.repository';
+import { ParserServiceImpl } from './parser.service';
 
 @Injectable()
-export class BuildingAggregateServiceImpl implements BuildingAggregateService {
-  private readonly logger = new Logger(BuildingAggregateServiceImpl.name);
+export class BuildingAggregateService {
+  private readonly logger = new Logger(BuildingAggregateService.name);
   private readonly JOB_TYPE = 'BUILDING_AGGREGATION';
   private readonly SIMILARITY_THRESHOLD = 0.2;
   private readonly BATCH_SIZE = 50;
 
   constructor(
-    private jobRepository: JobRepository,
-    private buildingSurveyRepository: BuildingSurveyRepository,
-    private buildingAggregateRepository: BuildingAggregateRepository,
-    private parserService: ParserService,
+    private jobRepository: JobRepositoryImpl,
+    private buildingSurveyRepository: BuildingSurveyRepositoryImpl,
+    private buildingAggregateRepository: BuildingAggregateRepositoryImpl,
+    private parserService: ParserServiceImpl,
   ) {}
 
-  async startAggregation(userId?: string): Promise<AggregationResult> {
+  async startAggregation(userId?: string): Promise<any> {
     this.logger.log(
       `Starting new aggregation job requested by user: ${userId || 'system'}`,
     );
@@ -40,7 +37,7 @@ export class BuildingAggregateServiceImpl implements BuildingAggregateService {
 
     // Create a new job
     this.logger.log('Creating new aggregation job');
-    const job = await this.jobRepository.createJob(this.JOB_TYPE, userId);
+    const job = await this.jobRepository.createJob(this.JOB_TYPE);
     this.logger.log(`Created aggregation job with ID: ${job.id}`);
 
     // Start the aggregation process in the background
@@ -49,7 +46,7 @@ export class BuildingAggregateServiceImpl implements BuildingAggregateService {
         `Aggregation job ${job.id} failed: ${error.message}`,
         error instanceof Error ? error.stack : undefined,
       );
-      this.jobRepository.failJob(job.id, error.message);
+      this.jobRepository.failJob(job.id);
     });
 
     return {
@@ -66,7 +63,7 @@ export class BuildingAggregateServiceImpl implements BuildingAggregateService {
 
   async stopAggregation(jobId: string): Promise<boolean> {
     this.logger.log(`Stopping aggregation job ${jobId} by user request`);
-    const job = await this.jobRepository.failJob(jobId, 'Job stopped by user');
+    const job = await this.jobRepository.failJob(jobId);
     this.logger.log(`Job ${jobId} status after stop request: ${job.status}`);
     return job.status === JobStatus.FAILED;
   }
@@ -183,10 +180,7 @@ export class BuildingAggregateServiceImpl implements BuildingAggregateService {
         `Critical error in aggregation process: ${error instanceof Error ? error.message : 'Unknown error'}`,
         error instanceof Error ? error.stack : undefined,
       );
-      await this.jobRepository.failJob(
-        jobId,
-        error instanceof Error ? error.message : 'Unknown error',
-      );
+      await this.jobRepository.failJob(jobId);
       throw error;
     }
   }

@@ -27,6 +27,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { WardModule } from './modules/ward/ward.module';
 import { AreaModule } from './modules/area/area.module';
 import { OdkModule } from './modules/odk/odk.module';
+import { BuddhashantiSurveyModule } from './modules/buddhashanti-survey/buddhashanti-survey.module';
 import configuration from './config/configuration';
 
 @Module({
@@ -57,9 +58,10 @@ import configuration from './config/configuration';
       }),
     }),
     AuthModule,
-    WardModule, // Add this line
+    WardModule,
     AreaModule,
     OdkModule,
+    BuddhashantiSurveyModule, // Add BuddhashantiSurveyModule here
   ],
   controllers: [AppController],
   providers: [

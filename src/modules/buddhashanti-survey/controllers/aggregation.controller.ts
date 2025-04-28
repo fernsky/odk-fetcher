@@ -7,7 +7,7 @@ import {
   HttpStatus,
   HttpException,
 } from '@nestjs/common';
-import { BuildingAggregateService } from '../interfaces/service.interface';
+import { BuildingAggregateService } from '../services/building.aggregate.service';
 import {
   ApiTags,
   ApiOperation,
