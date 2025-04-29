@@ -8,6 +8,7 @@ import { buddhashantiDb } from '../../../modules/drizzle/buddhashanti-db';
 import { eq, gt, and } from 'drizzle-orm';
 
 // Import the correct type definitions
+import { SurveyData } from '@app/modules/drizzle/buddhashanti-db/schema';
 import { RawBuildingData } from '../../odk/buddhashanti-services/parser/parse-buildings';
 import { RawFamily } from '../../odk/buddhashanti-services/parser/family/types';
 import { RawBusiness } from '../../odk/buddhashanti-services/parser/business/types';
@@ -21,7 +22,7 @@ export class BuildingSurveyRepositoryImpl implements BuildingSurveyRepository {
 
   async findBuildingSurveys(
     options: PaginationOptions,
-  ): Promise<PaginatedResult<RawBuildingData>> {
+  ): Promise<PaginatedResult<SurveyData<RawBuildingData>>> {
     this.logger.debug(
       `Finding building surveys with options: ${JSON.stringify(options)}`,
     );
@@ -52,7 +53,7 @@ export class BuildingSurveyRepositoryImpl implements BuildingSurveyRepository {
     const nextCursor = hasMore ? data[data.length - 1].id : undefined;
 
     // Cast the data to the correct type
-    const buildingSurveys = data as unknown as RawBuildingData[];
+    const buildingSurveys = data as unknown as SurveyData<RawBuildingData>[];
 
     return {
       data: buildingSurveys,
@@ -61,7 +62,7 @@ export class BuildingSurveyRepositoryImpl implements BuildingSurveyRepository {
     };
   }
 
-  async findFamilySurveys(): Promise<RawFamily[]> {
+  async findFamilySurveys(): Promise<SurveyData<RawFamily>[]> {
     this.logger.debug('Finding all family surveys');
 
     const surveys = await buddhashantiDb
@@ -73,10 +74,10 @@ export class BuildingSurveyRepositoryImpl implements BuildingSurveyRepository {
     this.logger.debug(`Retrieved ${surveys.length} family surveys`);
 
     // Cast the data to the correct type
-    return surveys as unknown as RawFamily[];
+    return surveys as unknown as SurveyData<RawFamily>[];
   }
 
-  async findBusinessSurveys(): Promise<RawBusiness[]> {
+  async findBusinessSurveys(): Promise<SurveyData<RawBusiness>[]> {
     this.logger.debug('Finding all business surveys');
 
     const surveys = await buddhashantiDb
@@ -88,6 +89,6 @@ export class BuildingSurveyRepositoryImpl implements BuildingSurveyRepository {
     this.logger.debug(`Retrieved ${surveys.length} business surveys`);
 
     // Cast the data to the correct type
-    return surveys as unknown as RawBusiness[];
+    return surveys as unknown as SurveyData<RawBusiness>[];
   }
 }

@@ -5,20 +5,29 @@ import {
   BusinessData,
 } from '../model/buddhashanti-aggregate-buildings';
 import stringSimilarity from 'string-similarity';
+import { SurveyData } from '@app/modules/drizzle/buddhashanti-db/schema';
+import { RawBuildingData } from '../../odk/buddhashanti-services/parser/parse-buildings';
+import { RawFamily } from '../../odk/buddhashanti-services/parser/family/types';
+import { RawBusiness } from '../../odk/buddhashanti-services/parser/business/types';
 
 @Injectable()
 export class ParserServiceImpl implements ParserService {
   private readonly logger = new Logger(ParserServiceImpl.name);
 
-  async parseBuilding(buildingData: Record<string, any>): Promise<any> {
+  async parseBuilding(
+    buildingData: Record<string, any> | SurveyData<RawBuildingData>,
+  ): Promise<any> {
     try {
+      // Handle data whether it comes directly or wrapped in SurveyData
+      const actualBuildingData = this.extractDataFromSurvey(buildingData);
+
       this.logger.log(
-        `Starting to parse building data with ID: ${buildingData.__id || 'unknown'}`,
+        `Starting to parse building data with ID: ${actualBuildingData.__id || 'unknown'}`,
       );
-      this.logger.debug('Building data input:', buildingData.data);
+      this.logger.debug('Building data input:', actualBuildingData);
 
       // Handle building data in the format from the sample data
-      const formData = buildingData.data;
+      const formData = actualBuildingData;
 
       // Process location data
       let gpsData = {
@@ -176,16 +185,19 @@ export class ParserServiceImpl implements ParserService {
   }
 
   async parseHousehold(
-    householdData: Record<string, any>,
+    householdData: Record<string, any> | SurveyData<RawFamily>,
   ): Promise<HouseholdData> {
     try {
+      // Handle data whether it comes directly or wrapped in SurveyData
+      const actualHouseholdData = this.extractDataFromSurvey(householdData);
+
       this.logger.log(
-        `Starting to parse household data with ID: ${householdData.__id || 'unknown'}`,
+        `Starting to parse household data with ID: ${actualHouseholdData.__id || 'unknown'}`,
       );
-      this.logger.debug('Household data input:', householdData.data);
+      this.logger.debug('Household data input:', actualHouseholdData);
 
       // Handle household data in the format from family sample data
-      const formData = householdData.data;
+      const formData = actualHouseholdData;
 
       // Process GPS data from the id.tmp_location or id.location
       let gpsData = {
@@ -272,16 +284,19 @@ export class ParserServiceImpl implements ParserService {
   }
 
   async parseBusiness(
-    businessData: Record<string, any>,
+    businessData: Record<string, any> | SurveyData<RawBusiness>,
   ): Promise<BusinessData> {
     try {
+      // Handle data whether it comes directly or wrapped in SurveyData
+      const actualBusinessData = this.extractDataFromSurvey(businessData);
+
       this.logger.log(
-        `Starting to parse business data with ID: ${businessData.__id || 'unknown'}`,
+        `Starting to parse business data with ID: ${actualBusinessData.__id || 'unknown'}`,
       );
-      this.logger.debug('Business data input:', businessData.data);
+      this.logger.debug('Business data input:', actualBusinessData);
 
       // Handle business data in the format from the business sample data
-      const formData = businessData.data;
+      const formData = actualBusinessData;
 
       // Process GPS data from b_location
       let gpsData = {
@@ -370,6 +385,24 @@ export class ParserServiceImpl implements ParserService {
         `Error parsing business: ${error instanceof Error ? error.message : 'Unknown error'}`,
       );
     }
+  }
+
+  // Helper method to extract data from SurveyData or use raw data
+  private extractDataFromSurvey<T>(
+    surveyData: Record<string, any> | SurveyData<T>,
+  ): Record<string, any> {
+    if (!surveyData) {
+      return {};
+    }
+
+    // Check if it's a SurveyData object (has data property)
+    if ('data' in surveyData && typeof surveyData.data === 'object') {
+      this.logger.debug('Extracting data from SurveyData wrapper');
+      return surveyData.data as Record<string, any>;
+    }
+
+    // Otherwise return as is
+    return surveyData as Record<string, any>;
   }
 
   calculateSimilarityScore(token1: string, token2: string): number {

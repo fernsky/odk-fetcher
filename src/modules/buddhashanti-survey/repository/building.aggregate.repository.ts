@@ -94,6 +94,16 @@ export class BuildingAggregateRepositoryImpl
     return results.length > 0 ? results[0] : null;
   }
 
+  async findById(id: string): Promise<BuddhashantiAggregateBuilding | null> {
+    const results = await buddhashantiDb
+      .select()
+      .from(buddhashantiAggregateBuilding)
+      .where(eq(buddhashantiAggregateBuilding.id, id))
+      .limit(1);
+
+    return results.length > 0 ? results[0] : null;
+  }
+
   async updateAggregateBuilding(
     id: string,
     data: Partial<BuddhashantiAggregateBuilding>,

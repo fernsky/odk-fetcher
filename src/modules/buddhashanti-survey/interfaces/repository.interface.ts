@@ -5,6 +5,7 @@ import {
 import { RawBuildingData } from '../../odk/buddhashanti-services/parser/parse-buildings';
 import { RawFamily } from '../../odk/buddhashanti-services/parser/family/types';
 import { RawBusiness } from '../../odk/buddhashanti-services/parser/business/types';
+import { SurveyData } from '@app/modules/drizzle/buddhashanti-db/schema';
 
 export interface PaginationOptions {
   cursor?: string;
@@ -21,9 +22,9 @@ export interface PaginatedResult<T> {
 export interface BuildingSurveyRepository {
   findBuildingSurveys(
     options: PaginationOptions,
-  ): Promise<PaginatedResult<RawBuildingData>>;
-  findFamilySurveys(): Promise<RawFamily[]>;
-  findBusinessSurveys(): Promise<RawBusiness[]>;
+  ): Promise<PaginatedResult<SurveyData<RawBuildingData>>>;
+  findFamilySurveys(): Promise<SurveyData<RawFamily>[]>;
+  findBusinessSurveys(): Promise<SurveyData<RawBusiness>[]>;
 }
 
 export interface BuildingAggregateRepository {
@@ -33,6 +34,7 @@ export interface BuildingAggregateRepository {
   findByBuildingToken(
     buildingToken: string,
   ): Promise<BuddhashantiAggregateBuilding | null>;
+  findById(id: string): Promise<BuddhashantiAggregateBuilding | null>;
   updateAggregateBuilding(
     id: string,
     data: Partial<BuddhashantiAggregateBuilding>,
