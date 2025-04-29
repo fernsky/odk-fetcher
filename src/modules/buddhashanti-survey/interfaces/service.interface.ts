@@ -3,6 +3,10 @@ import {
   HouseholdData,
   BusinessData,
 } from '../model/buddhashanti-aggregate-buildings';
+import { SurveyData } from '@app/modules/drizzle/buddhashanti-db/schema';
+import { RawBuildingData } from '../../odk/buddhashanti-services/parser/parse-buildings';
+import { RawFamily } from '../../odk/buddhashanti-services/parser/family/types';
+import { RawBusiness } from '../../odk/buddhashanti-services/parser/business/types';
 
 export interface AggregationResult {
   jobId: string;
@@ -11,7 +15,9 @@ export interface AggregationResult {
 }
 
 export interface ParserService {
-  parseBuilding(buildingData: Record<string, any>): Promise<{
+  parseBuilding(
+    buildingData: Record<string, any> | SurveyData<RawBuildingData>,
+  ): Promise<{
     buildingToken: string;
     wardNumber: number;
     areaCode: number;
@@ -19,9 +25,21 @@ export interface ParserService {
     [key: string]: any;
   }>;
 
-  parseHousehold(householdData: Record<string, any>): Promise<HouseholdData>;
-  parseBusiness(businessData: Record<string, any>): Promise<BusinessData>;
-  calculateSimilarityScore(token1: string, token2: string): number;
+  parseHousehold(
+    householdData: Record<string, any> | SurveyData<RawFamily>,
+  ): Promise<HouseholdData>;
+
+  parseBusiness(
+    businessData: Record<string, any> | SurveyData<RawBusiness>,
+  ): Promise<BusinessData>;
+
+  /**
+   * Multi-tier token matching system
+   * @param token1 First token to compare
+   * @param token2 Second token to compare
+   * @returns Number indicating match level: 3 (exact), 2 (normalized), 1 (character count), 0 (no match)
+   */
+  matchTokens(token1: string, token2: string): number;
 }
 
 export interface BuildingAggregateService {

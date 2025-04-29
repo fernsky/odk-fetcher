@@ -2,25 +2,18 @@ import { Injectable, Logger, ConflictException } from '@nestjs/common';
 import { JobStatus } from '../interfaces/job.interface';
 import { JobRepositoryImpl } from '../repository/job.repository';
 import { BuildingSurveyRepositoryImpl } from '../repository/building.form.repository';
-import { BuildingAggregateRepositoryImpl } from '../repository/building.aggregate.repository';
-import { ParserServiceImpl } from './parser.service';
-import { SurveyData } from '@app/modules/drizzle/buddhashanti-db/schema';
-import { RawBuildingData } from '../../odk/buddhashanti-services/parser/parse-buildings';
-import { RawFamily } from '../../odk/buddhashanti-services/parser/family/types';
-import { RawBusiness } from '../../odk/buddhashanti-services/parser/business/types';
+import { BuildingProcessorService } from './processors/building-processor.service';
 
 @Injectable()
 export class BuildingAggregateService {
   private readonly logger = new Logger(BuildingAggregateService.name);
   private readonly JOB_TYPE = 'BUILDING_AGGREGATION';
-  private readonly SIMILARITY_THRESHOLD = 0.2;
   private readonly BATCH_SIZE = 50;
 
   constructor(
     private jobRepository: JobRepositoryImpl,
     private buildingSurveyRepository: BuildingSurveyRepositoryImpl,
-    private buildingAggregateRepository: BuildingAggregateRepositoryImpl,
-    private parserService: ParserServiceImpl,
+    private buildingProcessor: BuildingProcessorService,
   ) {}
 
   async startAggregation(userId?: string): Promise<any> {
@@ -139,11 +132,13 @@ export class BuildingAggregateService {
             const buildingToken = buildingData.building_token || 'unknown';
             this.logger.debug(`Building token: ${buildingToken}`);
 
-            await this.processBuilding(
+            // Use the building processor service to process this building
+            await this.buildingProcessor.processBuilding(
               buildingData,
               familySurveys,
               businessSurveys,
             );
+
             processedCount++;
             this.logger.debug(
               `Successfully processed building ${buildingToken}`,
@@ -186,304 +181,5 @@ export class BuildingAggregateService {
       await this.jobRepository.failJob(jobId);
       throw error;
     }
-  }
-
-  private async processBuilding(
-    buildingData: RawBuildingData,
-    familySurveys: SurveyData<RawFamily>[],
-    businessSurveys: SurveyData<RawBusiness>[],
-  ): Promise<void> {
-    const buildingId = buildingData.__id || 'unknown';
-    this.logger.log(`Processing building with ID: ${buildingId}`);
-
-    // Parse the building data
-    this.logger.debug('Parsing building data');
-    const parsedBuilding = await this.parserService.parseBuilding(buildingData);
-    const buildingToken = parsedBuilding.buildingToken;
-
-    this.logger.log(
-      `Building token: ${buildingToken}, Ward: ${parsedBuilding.wardNumber}, Locality: ${parsedBuilding.locality}`,
-    );
-
-    // Find matching families
-    this.logger.debug(
-      `Searching for families matching building token: ${buildingToken}`,
-    );
-    const matchingFamilies = await this.findMatchingFamilies(
-      buildingToken,
-      parsedBuilding.wardNumber,
-      familySurveys,
-    );
-    this.logger.log(
-      `Found ${matchingFamilies.length} matching families for building ${buildingToken}`,
-    );
-
-    // Find matching businesses
-    this.logger.debug(
-      `Searching for businesses matching building token: ${buildingToken}`,
-    );
-    const matchingBusinesses = await this.findMatchingBusinesses(
-      buildingToken,
-      parsedBuilding.wardNumber,
-      businessSurveys,
-    );
-    this.logger.log(
-      `Found ${matchingBusinesses.length} matching businesses for building ${buildingToken}`,
-    );
-
-    // Use the buildingId as the aggregateId instead of generating a new UUID
-    const aggregateId = buildingId;
-    this.logger.debug(
-      `Using building ID as aggregated building ID: ${aggregateId}`,
-    );
-
-    // Check if an aggregate with this ID already exists
-    const existingAggregate =
-      await this.buildingAggregateRepository.findById(aggregateId);
-
-    if (existingAggregate) {
-      this.logger.debug(
-        `Found existing aggregate data for building ID: ${aggregateId}. Will replace with new data.`,
-      );
-    }
-
-    const aggregatedData = {
-      id: aggregateId,
-      buildingId: buildingId,
-      ...parsedBuilding,
-      households: matchingFamilies,
-      businesses: matchingBusinesses,
-      // Make sure the counts match what we found
-      totalFamilies: matchingFamilies.length,
-      totalBusinesses: matchingBusinesses.length,
-    };
-
-    // Log data summary
-    this.logger.debug(`Aggregated data summary:
-      - Building ID: ${aggregatedData.id}
-      - Source Building ID: ${aggregatedData.buildingId}
-      - Ward: ${aggregatedData.wardNumber}
-      - Locality: ${aggregatedData.locality}
-      - Families: ${aggregatedData.totalFamilies}
-      - Businesses: ${aggregatedData.totalBusinesses}
-    `);
-
-    // Save or update the aggregated building
-    this.logger.debug(
-      `Saving aggregated building to database with ID: ${aggregateId}`,
-    );
-
-    try {
-      if (existingAggregate) {
-        // If aggregate already exists, update it
-        await this.buildingAggregateRepository.updateAggregateBuilding(
-          aggregateId,
-          aggregatedData,
-        );
-        this.logger.log(
-          `Successfully updated existing aggregated building with ID: ${aggregateId}`,
-        );
-      } else {
-        // If it's a new aggregate, save it
-        await this.buildingAggregateRepository.saveAggregateBuilding(
-          aggregatedData,
-        );
-        this.logger.log(
-          `Successfully saved new aggregated building with ID: ${aggregateId}`,
-        );
-      }
-    } catch (error) {
-      this.logger.error(
-        `Error saving/updating aggregated building with ID ${aggregateId}: ${
-          error instanceof Error ? error.message : 'Unknown error'
-        }`,
-        error instanceof Error ? error.stack : undefined,
-      );
-      throw error;
-    }
-  }
-
-  private async findMatchingFamilies(
-    buildingToken: string,
-    wardNumber: number | null,
-    familySurveys: SurveyData<RawFamily>[],
-  ): Promise<any[]> {
-    this.logger.debug(
-      `Searching for families matching building token: ${buildingToken} in ward: ${wardNumber}`,
-    );
-    const matchingFamilies = [];
-    let exactMatches = 0;
-    let similarityMatches = 0;
-    let wardMatches = 0;
-
-    for (const familySurvey of familySurveys) {
-      try {
-        // Extract family data from SurveyData
-        const familyData = familySurvey.data;
-
-        // Check for token in the enumerator_introduction section based on sample data structure
-        const familyBuildingToken =
-          familyData?.enumerator_introduction?.building_token || '';
-
-        // Also check ward number
-        const familyWardNumber = familyData?.id?.ward_no || null;
-
-        const wardMatch =
-          wardNumber !== null &&
-          familyWardNumber !== null &&
-          wardNumber === familyWardNumber;
-
-        // Log the check
-        this.logger.debug(
-          `Checking family: Token "${familyBuildingToken}" against "${buildingToken}", Ward: ${familyWardNumber}`,
-        );
-
-        // Check for direct match
-        if (familyBuildingToken === buildingToken) {
-          this.logger.debug(
-            `Exact token match found for family ${familySurvey.id || 'unknown'}`,
-          );
-          exactMatches++;
-          const parsedHousehold =
-            await this.parserService.parseHousehold(familySurvey);
-          matchingFamilies.push(parsedHousehold);
-        }
-        // Check for similarity if tokens don't match exactly
-        else if (
-          familyBuildingToken &&
-          buildingToken &&
-          this.parserService.calculateSimilarityScore(
-            familyBuildingToken,
-            buildingToken,
-          ) > this.SIMILARITY_THRESHOLD
-        ) {
-          this.logger.debug(
-            `Similarity match found for family ${familySurvey.id || 'unknown'}`,
-          );
-          similarityMatches++;
-          const parsedHousehold =
-            await this.parserService.parseHousehold(familySurvey);
-          matchingFamilies.push(parsedHousehold);
-        }
-        // If no token match but ward matches, consider it as well
-        else if (
-          wardMatch &&
-          !matchingFamilies.some((f) => f.id === familySurvey.id)
-        ) {
-          this.logger.debug(
-            `Ward match found for family ${familySurvey.id || 'unknown'}`,
-          );
-          wardMatches++;
-          const parsedHousehold =
-            await this.parserService.parseHousehold(familySurvey);
-          matchingFamilies.push(parsedHousehold);
-        }
-      } catch (error) {
-        this.logger.warn(
-          `Error processing family ${familySurvey.id || 'unknown'}: ${
-            error instanceof Error ? error.message : 'Unknown error'
-          }`,
-        );
-      }
-    }
-
-    this.logger.log(
-      `Family matching results for building ${buildingToken}: ` +
-        `Total matches: ${matchingFamilies.length} ` +
-        `(Exact: ${exactMatches}, Similarity: ${similarityMatches}, Ward: ${wardMatches})`,
-    );
-    return matchingFamilies;
-  }
-
-  private async findMatchingBusinesses(
-    buildingToken: string,
-    wardNumber: number | null,
-    businessSurveys: SurveyData<RawBusiness>[],
-  ): Promise<any[]> {
-    this.logger.debug(
-      `Searching for businesses matching building token: ${buildingToken} in ward: ${wardNumber}`,
-    );
-    const matchingBusinesses = [];
-    let exactMatches = 0;
-    let similarityMatches = 0;
-    let wardMatches = 0;
-
-    for (const businessSurvey of businessSurveys) {
-      try {
-        // Extract business data from SurveyData
-        const businessData = businessSurvey.data;
-
-        // Check for token in the enumerator_introduction section based on sample data structure
-        const businessBuildingToken =
-          businessData?.enumerator_introduction?.building_token_number || '';
-
-        // Also check ward matching
-        const businessWardNumber = businessData?.b_addr?.ward_no || null;
-
-        const wardMatch =
-          wardNumber !== null &&
-          businessWardNumber !== null &&
-          wardNumber === businessWardNumber;
-
-        // Log the check
-        this.logger.debug(
-          `Checking business: Token "${businessBuildingToken}" against "${buildingToken}", Ward: ${businessWardNumber}`,
-        );
-
-        // Check for direct match
-        if (businessBuildingToken === buildingToken) {
-          this.logger.debug(
-            `Exact token match found for business ${businessSurvey.id || 'unknown'}`,
-          );
-          exactMatches++;
-          const parsedBusiness =
-            await this.parserService.parseBusiness(businessSurvey);
-          matchingBusinesses.push(parsedBusiness);
-        }
-        // Check for similarity if tokens don't match exactly
-        else if (
-          businessBuildingToken &&
-          buildingToken &&
-          this.parserService.calculateSimilarityScore(
-            businessBuildingToken,
-            buildingToken,
-          ) > this.SIMILARITY_THRESHOLD
-        ) {
-          this.logger.debug(
-            `Similarity match found for business ${businessSurvey.id || 'unknown'}`,
-          );
-          similarityMatches++;
-          const parsedBusiness =
-            await this.parserService.parseBusiness(businessSurvey);
-          matchingBusinesses.push(parsedBusiness);
-        }
-        // If no token match but ward matches, consider it as well
-        else if (
-          wardMatch &&
-          !matchingBusinesses.some((b) => b.id === businessSurvey.id)
-        ) {
-          this.logger.debug(
-            `Ward match found for business ${businessSurvey.id || 'unknown'}`,
-          );
-          wardMatches++;
-          const parsedBusiness =
-            await this.parserService.parseBusiness(businessSurvey);
-          matchingBusinesses.push(parsedBusiness);
-        }
-      } catch (error) {
-        this.logger.warn(
-          `Error processing business ${businessSurvey.id || 'unknown'}: ${
-            error instanceof Error ? error.message : 'Unknown error'
-          }`,
-        );
-      }
-    }
-
-    this.logger.log(
-      `Business matching results for building ${buildingToken}: ` +
-        `Total matches: ${matchingBusinesses.length} ` +
-        `(Exact: ${exactMatches}, Similarity: ${similarityMatches}, Ward: ${wardMatches})`,
-    );
-    return matchingBusinesses;
   }
 }
