@@ -30,7 +30,7 @@ export class BuildingProcessorService {
     // Parse the building data
     this.logger.debug('Parsing building data');
     const parsedBuilding = await this.parserService.parseBuilding(buildingData);
-    const buildingToken = parsedBuilding.buildingToken;
+    const buildingToken = parsedBuilding.building_token;
 
     this.logger.log(
       `Building token: ${buildingToken}, Ward: ${parsedBuilding.wardNumber}, Locality: ${parsedBuilding.locality}`,
@@ -79,13 +79,13 @@ export class BuildingProcessorService {
 
     const aggregatedData = {
       id: aggregateId,
-      buildingId: buildingId,
+      building_id: buildingId,
       ...parsedBuilding,
       households: JSON.stringify(matchingFamilies),
       businesses: JSON.stringify(matchingBusinesses),
       // Make sure the counts match what we found
-      totalFamilies: matchingFamilies.length,
-      totalBusinesses: matchingBusinesses.length,
+      total_families: matchingFamilies.length,
+      total_businesses: matchingBusinesses.length,
     };
 
     // Log data summary
@@ -94,8 +94,8 @@ export class BuildingProcessorService {
       - Source Building ID: ${aggregatedData.buildingId}
       - Ward: ${aggregatedData.wardNumber}
       - Locality: ${aggregatedData.locality}
-      - Families: ${aggregatedData.totalFamilies}
-      - Businesses: ${aggregatedData.totalBusinesses}
+      - Families: ${aggregatedData.total_families}
+      - Businesses: ${aggregatedData.total_businesses}
     `);
 
     // Save or update the aggregated building

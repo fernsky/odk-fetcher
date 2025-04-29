@@ -24,52 +24,25 @@ export class BuildingAggregateRepositoryImpl
         `Saving aggregate building with ID: ${buildingData.id}`,
       );
 
-      // Format the buildingData for insertion
-      const payload = {
-        id: buildingData.id,
-        building_id: buildingData.buildingId,
-        building_token: buildingData.buildingToken || null,
-        ward_number: buildingData.wardNumber,
-        area_code: buildingData.areaCode,
-        locality: buildingData.locality,
-        building_survey_date: buildingData.buildingSurveyDate
-          ? new Date(buildingData.buildingSurveyDate).toISOString()
-          : null,
-        building_submission_date: buildingData.buildingSubmissionDate
-          ? new Date(buildingData.buildingSubmissionDate).toISOString()
-          : null,
-        enumerator_id: buildingData.enumeratorId,
-        enumerator_name: buildingData.enumeratorName,
-        enumerator_phone: buildingData.enumeratorPhone,
-        building_owner_name: buildingData.buildingOwnerName,
-        building_owner_phone: buildingData.buildingOwnerPhone,
-        total_families: buildingData.totalFamilies || 0,
-        total_businesses: buildingData.totalBusinesses || 0,
-        building_gps_latitude: buildingData.buildingGpsLatitude,
-        building_gps_longitude: buildingData.buildingGpsLongitude,
-        building_gps_altitude: buildingData.buildingGpsAltitude,
-        building_gps_accuracy: buildingData.buildingGpsAccuracy,
-        building_ownership_status: buildingData.buildingOwnershipStatus,
-        building_ownership_status_other:
-          buildingData.buildingOwnershipStatusOther,
-        building_base: buildingData.buildingBase,
-        building_base_other: buildingData.buildingBaseOther,
-        building_outer_wall: buildingData.buildingOuterWall,
-        building_outer_wall_other: buildingData.buildingOuterWallOther,
-        building_roof: buildingData.buildingRoof,
-        building_roof_other: buildingData.buildingRoofOther,
-        natural_disasters: buildingData.naturalDisasters,
-        natural_disasters_other: buildingData.naturalDisastersOther,
-        building_image_key: buildingData.buildingImageKey,
-        building_enumerator_selfie_key:
-          buildingData.buildingEnumeratorSelfieKey,
-        building_audio_recording_key: buildingData.buildingAudioRecordingKey,
-        households: buildingData.households || [],
-        businesses: buildingData.businesses || [],
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
-      this.logger.debug(payload);
+      // Format dates to avoid timezone issues
+      const payload = { ...buildingData };
+
+      // Ensure dates are properly formatted for PostgreSQL
+      if (payload.building_survey_date) {
+        payload.building_survey_date = this.formatDateForDB(
+          payload.building_survey_date,
+        );
+      }
+
+      if (payload.building_submission_date) {
+        payload.building_submission_date = this.formatDateForDB(
+          payload.building_submission_date,
+        );
+      }
+
+      // Always set created_at and updated_at
+      payload.created_at = new Date().toISOString().split('.')[0];
+      payload.updated_at = new Date().toISOString().split('.')[0];
 
       // Use jsonToPostgres to generate the SQL statement
       const statement = jsonToPostgres(
@@ -109,7 +82,7 @@ export class BuildingAggregateRepositoryImpl
       const results = await buddhashantiDb
         .select()
         .from(buddhashantiAggregateBuilding)
-        .where(eq(buddhashantiAggregateBuilding.buildingToken, buildingToken))
+        .where(eq(buddhashantiAggregateBuilding.building_token, buildingToken))
         .limit(1);
 
       if (results.length > 0) {
@@ -167,14 +140,22 @@ export class BuildingAggregateRepositoryImpl
   ): Promise<void> {
     try {
       this.logger.debug(`Updating aggregate building with ID: ${id}`);
+
+      // Clone data to avoid modifying the input
+      const payload = { ...data };
+
+      // Make sure we have the ID in the payload for the WHERE clause
+      payload.id = id;
+
+      // Generate SQL update statement using jsonToPostgres with the proper CONFLICT option
       const statement = jsonToPostgres(
         'buddhashanti_aggregate_buildings',
-        data,
+        payload,
+        `ON CONFLICT(id) DO UPDATE SET`, // Specify the conflict resolution
       );
 
       if (statement) {
         this.logger.debug('Executing SQL update statement');
-        this.logger.debug(statement);
         // Execute the generated SQL statement
         await buddhashantiDb.execute(sql.raw(statement));
         this.logger.log(
@@ -194,6 +175,28 @@ export class BuildingAggregateRepositoryImpl
         error instanceof Error ? error.stack : undefined,
       );
       throw error;
+    }
+  }
+
+  /**
+   * Format a date for PostgreSQL to avoid timezone issues
+   */
+  private formatDateForDB(date: string | Date): string {
+    if (!date) return null;
+
+    try {
+      // If it's already an ISO string, extract the date part without the time zone
+      if (typeof date === 'string') {
+        // Remove any timezone info to avoid issues
+        return date.split('.')[0].split('T').join(' ');
+      }
+
+      // If it's a Date object, convert to ISO and extract the date part
+      return date.toISOString().split('.')[0].split('T').join(' ');
+    } catch (error) {
+      this.logger.warn(`Error formatting date: ${date}`, error);
+      // Return as is if there's an error
+      return date as any;
     }
   }
 }

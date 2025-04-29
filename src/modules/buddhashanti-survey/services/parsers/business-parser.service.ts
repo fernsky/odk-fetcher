@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { SurveyData } from '@app/modules/drizzle/buddhashanti-db/schema';
 import { RawBusiness } from '../../../odk/buddhashanti-services/parser/business/types';
-import { BusinessData } from '../../model/buddhashanti-aggregate-buildings';
+import { BusinessData } from '../../model/business-data.model';
 import { BaseParserService } from './base-parser.service';
 
 @Injectable()

@@ -106,14 +106,14 @@ export class BuildingParserService extends BaseParserService {
       );
 
       const buildingSurveyDate = formData.survey_date
-        ? new Date(formData.survey_date)
+        ? new Date(formData.survey_date).toISOString()
         : null;
       this.logger.debug(
         `Survey date parsed: ${buildingSurveyDate} from source: ${formData.survey_date}`,
       );
 
       const buildingSubmissionDate = formData.__system?.submissionDate
-        ? new Date(formData.__system.submissionDate)
+        ? new Date(formData.__system.submissionDate).toISOString()
         : null;
       this.logger.debug(`Submission date parsed: ${buildingSubmissionDate}`);
 
@@ -128,41 +128,43 @@ export class BuildingParserService extends BaseParserService {
       );
 
       const result = {
-        buildingToken: formData.building_token || '',
-        wardNumber,
-        areaCode,
+        id: formData.__id || '',
+        building_id: formData.__id || '',
+        building_token: formData.building_token || '',
+        ward_number: wardNumber,
+        area_code: areaCode,
         locality: formData.locality || '',
-        buildingSurveyDate: buildingSurveyDate.toISOString(),
-        buildingSubmissionDate: buildingSubmissionDate.toISOString(),
-        enumeratorId: formData.enumerator_id || '',
-        enumeratorName: formData.enumerator_name || '',
-        enumeratorPhone:
+        building_survey_date: buildingSurveyDate,
+        building_submission_date: buildingSubmissionDate,
+        enumerator_id: formData.enumerator_id || '',
+        enumerator_name: formData.enumerator_name || '',
+        enumerator_phone:
           formData.enumerator_introduction?.enumerator_phone || '',
-        buildingOwnerName: formData.building_owner_name || '',
-        buildingOwnerPhone: '', // Not in sample data
-        totalFamilies,
-        totalBusinesses,
-        buildingGpsLatitude: gpsData.latitude,
-        buildingGpsLongitude: gpsData.longitude,
-        buildingGpsAltitude: gpsData.altitude,
-        buildingGpsAccuracy: gpsData.accuracy,
-        buildingOwnershipStatus: formData.ownership_status || '',
-        buildingOwnershipStatusOther: formData.other_ownership_status || '',
-        buildingBase: formData.house_base || '',
-        buildingBaseOther: formData.house_base_other || '',
-        buildingOuterWall: formData.house_outer_wall || '',
-        buildingOuterWallOther: formData.house_outer_wall_other || '',
-        buildingRoof: formData.house_roof || '',
-        buildingRoofOther: formData.house_roof_other || '',
-        naturalDisasters: naturalDisastersArray,
-        naturalDisastersOther: formData.natural_disasters_other || '',
-        buildingImageKey: formData.building_image || '',
-        buildingEnumeratorSelfieKey: formData.enumerator_selfie || '',
-        buildingAudioRecordingKey: formData.monitoring_audio || '',
+        building_owner_name: formData.building_owner_name || '',
+        building_owner_phone: '', // Not in sample data
+        total_families: totalFamilies,
+        total_businesses: totalBusinesses,
+        building_gps_latitude: gpsData.latitude,
+        building_gps_longitude: gpsData.longitude,
+        building_gps_altitude: gpsData.altitude,
+        building_gps_accuracy: gpsData.accuracy,
+        building_ownership_status: formData.ownership_status || '',
+        building_ownership_status_other: formData.other_ownership_status || '',
+        building_base: formData.house_base || '',
+        building_base_other: formData.house_base_other || '',
+        building_outer_wall: formData.house_outer_wall || '',
+        building_outer_wall_other: formData.house_outer_wall_other || '',
+        building_roof: formData.house_roof || '',
+        building_roof_other: formData.house_roof_other || '',
+        natural_disasters: naturalDisastersArray,
+        natural_disasters_other: formData.natural_disasters_other || '',
+        building_image_key: formData.building_image || '',
+        building_enumerator_selfie_key: formData.enumerator_selfie || '',
+        building_audio_recording_key: formData.monitoring_audio || '',
       };
 
       this.logger.log(
-        `Successfully parsed building data with token: ${result.buildingToken}`,
+        `Successfully parsed building data with token: ${result.building_token}`,
       );
       this.logger.debug('Parsed building result:', result);
 

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { SurveyData } from '@app/modules/drizzle/buddhashanti-db/schema';
 import { RawFamily } from '../../../odk/buddhashanti-services/parser/family/types';
-import { HouseholdData } from '../../model/buddhashanti-aggregate-buildings';
+import { HouseholdData } from '../../model/household-data.model';
 import { BaseParserService } from './base-parser.service';
 
 @Injectable()
