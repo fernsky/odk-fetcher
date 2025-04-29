@@ -1,8 +1,6 @@
 import { Job } from './job.interface';
-import {
-  HouseholdData,
-  BusinessData,
-} from '../model/buddhashanti-aggregate-buildings';
+import { HouseholdData } from '../model/household-data.model';
+import { BusinessData } from '../model/business-data.model';
 import { SurveyData } from '@app/modules/drizzle/buddhashanti-db/schema';
 import { RawBuildingData } from '../../odk/buddhashanti-services/parser/parse-buildings';
 import { RawFamily } from '../../odk/buddhashanti-services/parser/family/types';

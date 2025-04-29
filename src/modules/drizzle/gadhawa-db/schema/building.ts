@@ -138,9 +138,7 @@ export const buildings = pgTable('gadhawa_buildings', {
   areaId: varchar('area_id', { length: 255 }).references(() => areas.id),
   enumeratorId: varchar('user_id', { length: 21 }).references(() => users.id),
   wardId: integer('ward_id').references(() => wards.wardNumber),
-  buildingToken: varchar('building_token', { length: 255 }).references(
-    () => buildingTokens.token,
-  ),
+  buildingToken: varchar('building_token', { length: 255 }),
 
   // Flags to identify the correctness of given input data
   isAreaValid: boolean('is_area_invalid').default(false),
