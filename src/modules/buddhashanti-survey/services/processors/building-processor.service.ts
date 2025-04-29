@@ -91,8 +91,8 @@ export class BuildingProcessorService {
     // Log data summary
     this.logger.debug(`Aggregated data summary:
       - Building ID: ${aggregatedData.id}
-      - Source Building ID: ${aggregatedData.buildingId}
-      - Ward: ${aggregatedData.wardNumber}
+      - Source Building ID: ${aggregatedData.building_id}
+      - Ward: ${aggregatedData.ward_number}
       - Locality: ${aggregatedData.locality}
       - Families: ${aggregatedData.total_families}
       - Businesses: ${aggregatedData.total_businesses}

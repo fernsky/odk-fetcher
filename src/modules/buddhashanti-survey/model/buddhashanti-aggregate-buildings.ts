@@ -68,8 +68,28 @@ export const buddhashantiAggregateBuilding = pgTable(
     building_outer_wall_other: text('building_outer_wall_other'),
     building_roof: varchar('building_roof', { length: 100 }),
     building_roof_other: text('building_roof_other'),
+
+    // Additional building characteristics from parse-building.ts
+    building_floor: varchar('building_floor', { length: 100 }),
+    building_floor_other: text('building_floor_other'),
+    map_status: varchar('map_status', { length: 50 }),
+
+    // Natural disaster information
     natural_disasters: text('natural_disasters').array(),
     natural_disasters_other: text('natural_disasters_other'),
+
+    // Accessibility metrics
+    time_to_market: varchar('time_to_market', { length: 50 }),
+    time_to_active_road: varchar('time_to_active_road', { length: 50 }),
+    time_to_public_bus: varchar('time_to_public_bus', { length: 50 }),
+    time_to_health_organization: varchar('time_to_health_organization', {
+      length: 50,
+    }),
+    time_to_financial_organization: varchar('time_to_financial_organization', {
+      length: 50,
+    }),
+    road_status: varchar('road_status', { length: 50 }),
+    road_status_other: text('road_status_other'),
 
     // Media keys
     building_image_key: varchar('building_image_key', { length: 255 }),

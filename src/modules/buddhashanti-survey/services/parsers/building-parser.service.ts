@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { SurveyData } from '@app/modules/drizzle/buddhashanti-db/schema';
 import { RawBuildingData } from '../../../odk/buddhashanti-services/parser/parse-buildings';
 import { BaseParserService } from './base-parser.service';
+import { decodeSingleChoice } from '@app/common/utils/data';
+import { buildingChoices } from '../../../odk/buddhashanti-services/resources/building';
 
 @Injectable()
 export class BuildingParserService extends BaseParserService {
@@ -141,23 +143,79 @@ export class BuildingParserService extends BaseParserService {
         enumerator_phone:
           formData.enumerator_introduction?.enumerator_phone || '',
         building_owner_name: formData.building_owner_name || '',
-        building_owner_phone: '', // Not in sample data
+        building_owner_phone: formData.building_owner_phone || '', // Not in sample data
         total_families: totalFamilies,
         total_businesses: totalBusinesses,
         building_gps_latitude: gpsData.latitude,
         building_gps_longitude: gpsData.longitude,
         building_gps_altitude: gpsData.altitude,
         building_gps_accuracy: gpsData.accuracy,
-        building_ownership_status: formData.ownership_status || '',
+
+        // Building characteristics
+        building_ownership_status:
+          decodeSingleChoice(
+            formData.ownership_status,
+            buildingChoices.house_ownership,
+          ) || '',
         building_ownership_status_other: formData.other_ownership_status || '',
-        building_base: formData.house_base || '',
+        building_base:
+          decodeSingleChoice(formData.house_base, buildingChoices.house_base) ||
+          '',
         building_base_other: formData.house_base_other || '',
-        building_outer_wall: formData.house_outer_wall || '',
+        building_outer_wall:
+          decodeSingleChoice(
+            formData.house_outer_wall,
+            buildingChoices.house_outer_wall,
+          ) || '',
         building_outer_wall_other: formData.house_outer_wall_other || '',
-        building_roof: formData.house_roof || '',
+        building_roof:
+          decodeSingleChoice(formData.house_roof, buildingChoices.house_roof) ||
+          '',
         building_roof_other: formData.house_roof_other || '',
+
+        // New fields from comprehensive model
+        building_floor:
+          decodeSingleChoice(
+            formData.house_floor,
+            buildingChoices.house_floor,
+          ) || '',
+        building_floor_other: formData.house_floor_other || '',
+        map_status:
+          decodeSingleChoice(formData.map_status, buildingChoices.map_status) ||
+          '',
+
+        // Natural disaster information
         natural_disasters: naturalDisastersArray,
         natural_disasters_other: formData.natural_disasters_other || '',
+
+        // Accessibility metrics
+        time_to_market:
+          decodeSingleChoice(formData.time_to_market, buildingChoices.time) ||
+          '',
+        time_to_active_road:
+          decodeSingleChoice(formData.time_to_act_road, buildingChoices.time) ||
+          '',
+        time_to_public_bus:
+          decodeSingleChoice(formData.time_to_pub_bus, buildingChoices.time) ||
+          '',
+        time_to_health_organization:
+          decodeSingleChoice(
+            formData.time_to_health_inst,
+            buildingChoices.time,
+          ) || '',
+        time_to_financial_organization:
+          decodeSingleChoice(
+            formData.time_to_financial_org,
+            buildingChoices.time,
+          ) || '',
+        road_status:
+          decodeSingleChoice(
+            formData.road_status,
+            buildingChoices.road_status,
+          ) || '',
+        road_status_other: formData.road_status_other || '',
+
+        // Media keys
         building_image_key: formData.building_image || '',
         building_enumerator_selfie_key: formData.enumerator_selfie || '',
         building_audio_recording_key: formData.monitoring_audio || '',
