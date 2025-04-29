@@ -132,8 +132,8 @@ export class BuildingParserService extends BaseParserService {
         wardNumber,
         areaCode,
         locality: formData.locality || '',
-        buildingSurveyDate,
-        buildingSubmissionDate,
+        buildingSurveyDate: buildingSurveyDate.toISOString(),
+        buildingSubmissionDate: buildingSubmissionDate.toISOString(),
         enumeratorId: formData.enumerator_id || '',
         enumeratorName: formData.enumerator_name || '',
         enumeratorPhone:

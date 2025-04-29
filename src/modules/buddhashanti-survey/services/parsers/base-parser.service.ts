@@ -36,7 +36,7 @@ export abstract class BaseParserService {
    * @returns Number indicating match level: 3 (exact), 2 (normalized), 1 (character count), 0 (no match)
    */
   matchTokens(token1: string, token2: string): number {
-    this.logger.debug(`Matching tokens: "${token1}" and "${token2}"`);
+    //this.logger.debug(`Matching tokens: "${token1}" and "${token2}"`);
 
     if (!token1 || !token2) {
       this.logger.debug('One or both tokens empty, returning 0');
@@ -66,7 +66,7 @@ export abstract class BaseParserService {
       return 1;
     }
 
-    this.logger.debug('No match found');
+    //this.logger.debug('No match found');
     return 0;
   }
 

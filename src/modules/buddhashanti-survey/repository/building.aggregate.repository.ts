@@ -64,8 +64,8 @@ export class BuildingAggregateRepositoryImpl
         building_enumerator_selfie_key:
           buildingData.buildingEnumeratorSelfieKey,
         building_audio_recording_key: buildingData.buildingAudioRecordingKey,
-        households: JSON.stringify(buildingData.households) || [],
-        businesses: JSON.stringify(buildingData.businesses) || [],
+        households: buildingData.households || [],
+        businesses: buildingData.businesses || [],
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
@@ -167,36 +167,14 @@ export class BuildingAggregateRepositoryImpl
   ): Promise<void> {
     try {
       this.logger.debug(`Updating aggregate building with ID: ${id}`);
-
-      // Prepare the payload for update
-      const payload: Record<string, any> = {};
-
-      // Only set properties that are defined in the input data
-      Object.keys(data).forEach((key) => {
-        const camelCaseKey = key as keyof BuddhashantiAggregateBuilding;
-        if (data[camelCaseKey] !== undefined) {
-          // Convert camelCase to snake_case for PostgreSQL
-          const snakeCaseKey = camelCaseKey.replace(
-            /[A-Z]/g,
-            (letter) => `_${letter.toLowerCase()}`,
-          );
-          payload[snakeCaseKey] = data[camelCaseKey];
-        }
-      });
-
-      // Always update the updated_at timestamp
-      payload.updated_at = new Date().toISOString();
-
-      // Generate SQL update statement using jsonToPostgres
-      // Generate SQL update statement for the building record
-      // We need to use UPDATE directly instead of the upsert pattern since we're updating by ID
-      const updateColumns = Object.keys(payload)
-        .map((key) => `${key} = '${payload[key]}'`)
-        .join(', ');
-      const statement = `UPDATE buddhashanti_aggregate_buildings SET ${updateColumns} WHERE id = '${id}'`;
+      const statement = jsonToPostgres(
+        'buddhashanti_aggregate_buildings',
+        data,
+      );
 
       if (statement) {
         this.logger.debug('Executing SQL update statement');
+        this.logger.debug(statement);
         // Execute the generated SQL statement
         await buddhashantiDb.execute(sql.raw(statement));
         this.logger.log(

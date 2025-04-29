@@ -81,8 +81,8 @@ export class BuildingProcessorService {
       id: aggregateId,
       buildingId: buildingId,
       ...parsedBuilding,
-      households: matchingFamilies,
-      businesses: matchingBusinesses,
+      households: JSON.stringify(matchingFamilies),
+      businesses: JSON.stringify(matchingBusinesses),
       // Make sure the counts match what we found
       totalFamilies: matchingFamilies.length,
       totalBusinesses: matchingBusinesses.length,
