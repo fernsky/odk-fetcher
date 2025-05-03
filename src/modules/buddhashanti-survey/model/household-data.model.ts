@@ -8,6 +8,11 @@ export interface HouseholdData {
   household_submission_date: string | null;
   household_token: string;
 
+  // Temporary Measures
+  temporary_area_code?: string | null;
+  temporary_ward_number?: string | null;
+  temporary_building_token?: string | null;
+
   // Location information
   household_gps_latitude: number | null;
   household_gps_longitude: number | null;

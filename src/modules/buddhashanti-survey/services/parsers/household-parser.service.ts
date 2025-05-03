@@ -116,7 +116,7 @@ export class HouseholdParserService extends BaseParserService {
         religionDetails.religion_other = fhi.religion_other || null;
       }
 
-      // Process birch place and prior location
+      // Process birth place and prior location
       const birthPlaceDetails = {
         birth_place: '',
         birth_province: null,
@@ -280,9 +280,6 @@ export class HouseholdParserService extends BaseParserService {
       // Process deaths
       const deaths = this.parseDeaths(formData);
 
-      // Process absentees
-      const absentees = this.parseAbsentees(formData);
-
       // Create the household data object with all fields from the model
       const result: HouseholdData = {
         // Identification and basic information
@@ -443,7 +440,6 @@ export class HouseholdParserService extends BaseParserService {
         animals: animals,
         animal_products: animalProducts,
         deaths: deaths,
-        absentees: absentees,
       };
 
       this.logger.log(
@@ -468,7 +464,6 @@ export class HouseholdParserService extends BaseParserService {
     try {
       const members = [];
       const householdId = formData.__id || '';
-
       if (
         !formData.individual ||
         !Array.isArray(formData.individual) ||
@@ -498,6 +493,7 @@ export class HouseholdParserService extends BaseParserService {
               ) || '',
             citizen_of_other: individual.citizenof_oth || null,
           };
+          this.logger.debug('Processing household member:', member);
 
           // Add demographics from family or individual
           if (formData.id?.members?.are_a_family === 'yes') {
@@ -514,10 +510,7 @@ export class HouseholdParserService extends BaseParserService {
                 familyChoices.languages,
               ) || '';
             member['ancestral_language_other'] =
-              decodeSingleChoice(
-                formData.family_history_info?.ancestrial_lang_oth,
-                familyChoices.languages,
-              ) || null;
+              formData.family_history_info?.ancestral_lang_oth || null;
             member['primary_mother_tongue'] =
               decodeSingleChoice(
                 formData.family_history_info?.mother_tounge_primary,
@@ -549,11 +542,8 @@ export class HouseholdParserService extends BaseParserService {
                 familyChoices.languages,
               ) || '';
             member['ancestral_language_other'] =
-              decodeSingleChoice(
-                individual.individual_history_info
-                  .ancestrial_lang_oth_individual,
-                familyChoices.languages,
-              ) || null;
+              individual.individual_history_info
+                .ancestral_lang_oth_individual || null;
             member['primary_mother_tongue'] =
               decodeSingleChoice(
                 individual.individual_history_info
@@ -572,10 +562,8 @@ export class HouseholdParserService extends BaseParserService {
                 familyChoices.religions,
               ) || '';
             member['religion_other'] =
-              decodeSingleChoice(
-                individual.individual_history_info.religion_other_individual,
-                familyChoices.religions,
-              ) || null;
+              individual.individual_history_info.religion_other_individual ||
+              null;
           }
 
           // Add marriage details if applicable
@@ -642,7 +630,7 @@ export class HouseholdParserService extends BaseParserService {
           const fertilityRecord = formData.fertility?.find(
             (f) =>
               f.fertility_name === individual.name &&
-              parseInt(f.fertility_age, 10) === individual.age,
+              parseInt(f.ftd?.fertility_age || '0', 10) === individual.age,
           );
 
           if (fertilityRecord?.ftd) {
@@ -768,12 +756,147 @@ export class HouseholdParserService extends BaseParserService {
             }
           }
 
+          // Initialize absentee fields
+          member['is_absent'] = false;
+          member['absence_reason'] = null;
+          member['absence_location'] = null;
+          member['absence_province'] = null;
+          member['absence_district'] = null;
+          member['absence_country'] = null;
+          member['sends_remittance'] = false;
+          member['remittance_amount'] = null;
+
           members.push(member);
         } catch (e) {
           const errorMessage = e instanceof Error ? e.message : 'Unknown error';
           this.logger.warn(
             `Error processing household member: ${errorMessage}`,
           );
+        }
+      }
+
+      // Process absentees directly here and update corresponding household members
+      if (
+        formData.absent &&
+        formData.absent.has_absent === 'yes' &&
+        formData.absent.abs &&
+        Array.isArray(formData.absent.abs) &&
+        formData.absent.abs.length > 0
+      ) {
+        for (const absentee of formData.absent.abs) {
+          try {
+            // Try to find matching individual in household_members
+            const matchingMember = members.find(
+              (member) =>
+                member.name === absentee.abs_name &&
+                member.gender ===
+                  decodeSingleChoice(
+                    absentee.abs_gender,
+                    familyChoices.genders,
+                  ) &&
+                (absentee.abs_prior_age === member.age.toString() ||
+                  parseInt(absentee.abs_prior_age || '0', 10) === member.age),
+            );
+
+            if (matchingMember) {
+              // Update the household member with absentee information
+              matchingMember.is_absent = true;
+              matchingMember.absence_reason = decodeSingleChoice(
+                absentee.abs_reason,
+                familyChoices.absence_reasons,
+              );
+              matchingMember.absence_location = decodeSingleChoice(
+                absentee.abs_location,
+                familyChoices.locations,
+              );
+              matchingMember.sends_remittance =
+                absentee.abs_sends_remittance === 'yes';
+              matchingMember.remittance_amount =
+                absentee.abs_sends_remittance === 'yes'
+                  ? absentee.abs_remittance_amount || null
+                  : null;
+
+              // Add location details based on the absence location
+              if (
+                absentee.abs_location === 'elsewhere_in_district' ||
+                absentee.abs_location === 'elsewhere_in_nepal'
+              ) {
+                matchingMember.absence_province = decodeSingleChoice(
+                  absentee.abs_province,
+                  familyChoices.provinces,
+                );
+                matchingMember.absence_district = absentee.abs_district;
+              } else if (absentee.abs_location === 'abroad') {
+                matchingMember.absence_country = decodeSingleChoice(
+                  absentee.abs_country,
+                  familyChoices.countries,
+                );
+              }
+            } else {
+              // If no matching member is found, this might be an absentee not in the household
+              // Create a new member record with absentee information
+              const newMemberFromAbsentee = {
+                id: `absent-mem-${Math.random().toString(36).substring(2, 10)}`,
+                household_id: householdId,
+                name: absentee.abs_name || '',
+                gender:
+                  decodeSingleChoice(
+                    absentee.abs_gender,
+                    familyChoices.genders,
+                  ) || '',
+                age: parseInt(absentee.abs_age || '0', 10) || 0,
+                education_level:
+                  decodeSingleChoice(
+                    absentee.abs_edu_level,
+                    familyChoices.educational_level,
+                  ) || '',
+
+                // Mark as an absentee
+                is_absent: true,
+                absence_reason:
+                  decodeSingleChoice(
+                    absentee.abs_reason,
+                    familyChoices.absence_reasons,
+                  ) || '',
+                absence_location:
+                  decodeSingleChoice(
+                    absentee.abs_location,
+                    familyChoices.locations,
+                  ) || '',
+                absence_province: null,
+                absence_district: null,
+                absence_country: null,
+                sends_remittance: absentee.abs_sends_remittance === 'yes',
+                remittance_amount:
+                  absentee.abs_sends_remittance === 'yes'
+                    ? absentee.abs_remittance_amount || null
+                    : null,
+              };
+
+              // Add location details based on the absence location
+              if (
+                absentee.abs_location === 'elsewhere_in_district' ||
+                absentee.abs_location === 'elsewhere_in_nepal'
+              ) {
+                newMemberFromAbsentee.absence_province = decodeSingleChoice(
+                  absentee.abs_province,
+                  familyChoices.provinces,
+                );
+                newMemberFromAbsentee.absence_district = absentee.abs_district;
+              } else if (absentee.abs_location === 'abroad') {
+                newMemberFromAbsentee.absence_country = decodeSingleChoice(
+                  absentee.abs_country,
+                  familyChoices.countries,
+                );
+              }
+
+              members.push(newMemberFromAbsentee);
+            }
+          } catch (e) {
+            const errorMessage =
+              e instanceof Error ? e.message : 'Unknown error';
+            this.logger.warn(`Error processing absentee: ${errorMessage}`);
+          }
         }
       }
 
@@ -983,8 +1106,7 @@ export class HouseholdParserService extends BaseParserService {
                 (crop.fruits_area_description?.fruits_kattha || 0) * 338.63 +
                 (crop.fruits_area_description?.fruits_dhur || 0) * 16.93,
               production: crop.frp?.fruit_prod || '',
-              tree_count:
-                crop.fruits_area_description?.fruits_trees_count || null,
+              tree_count: crop?.fruits_trees_count || null,
             });
           } catch (e) {
             const errorMessage =
@@ -1037,6 +1159,7 @@ export class HouseholdParserService extends BaseParserService {
                 (crop.ccrop_area_description?.ccrop_kattha || 0) * 338.63 +
                 (crop.ccrop_area_description?.ccrop_dhur || 0) * 16.93,
               production: crop.cp?.ccrop_prod || '',
+              tree_count: crop?.betel_tree_count,
             });
           } catch (e) {
             const errorMessage =
@@ -1216,96 +1339,6 @@ export class HouseholdParserService extends BaseParserService {
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
       this.logger.warn(`Error parsing deaths: ${errorMessage}`);
-      return [];
-    }
-  }
-
-  /**
-   * Parse absentees from the family data
-   */
-  private parseAbsentees(formData: any) {
-    try {
-      const absentees = [];
-      const householdId = formData.__id || '';
-      const wardNumber = parseInt(formData.id?.ward_no || '0', 10) || 0;
-
-      if (
-        !formData.absent ||
-        formData.absent.has_absent !== 'yes' ||
-        !formData.absent.abs ||
-        !Array.isArray(formData.absent.abs) ||
-        formData.absent.abs.length === 0
-      ) {
-        return absentees;
-      }
-
-      for (const absentee of formData.absent.abs) {
-        try {
-          const absenteeData = {
-            id:
-              absentee.__id ||
-              `absent-${Math.random().toString(36).substring(2, 10)}`,
-            household_id: householdId,
-            ward_number: wardNumber,
-            absentee_name: absentee.abs_name || '',
-            gender:
-              decodeSingleChoice(absentee.abs_gender, familyChoices.genders) ||
-              '',
-            age: absentee.abs_age || 0,
-            education_level:
-              decodeSingleChoice(
-                absentee.abs_edu_level,
-                familyChoices.educational_level,
-              ) || '',
-            absence_reason:
-              decodeSingleChoice(
-                absentee.abs_reason,
-                familyChoices.absence_reasons,
-              ) || '',
-            location:
-              decodeSingleChoice(
-                absentee.abs_location,
-                familyChoices.locations,
-              ) || '',
-            province: null,
-            district: null,
-            country: null,
-            sends_remittance: absentee.abs_sends_remittance === 'yes',
-            remittance_amount:
-              absentee.abs_sends_remittance === 'yes'
-                ? absentee.abs_remittance_amount || null
-                : null,
-          };
-
-          // Add location details based on the absence location
-          if (
-            absentee.abs_location === 'elsewhere_in_district' ||
-            absentee.abs_location === 'elsewhere_in_nepal'
-          ) {
-            absenteeData.province = decodeSingleChoice(
-              absentee.abs_province,
-              familyChoices.provinces,
-            );
-            absenteeData.district = absentee.abs_district;
-          } else if (absentee.abs_location === 'abroad') {
-            absenteeData.country = decodeSingleChoice(
-              absentee.abs_country,
-              familyChoices.countries,
-            );
-          }
-
-          absentees.push(absenteeData);
-        } catch (e) {
-          const errorMessage = e instanceof Error ? e.message : 'Unknown error';
-          this.logger.warn(`Error processing absentee: ${errorMessage}`);
-        }
-      }
-
-      return absentees;
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : 'Unknown error';
-      this.logger.warn(`Error parsing absentees: ${errorMessage}`);
       return [];
     }
   }
