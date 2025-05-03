@@ -29,6 +29,7 @@ import { AreaModule } from './modules/area/area.module';
 import { OdkModule } from './modules/odk/odk.module';
 import { BuddhashantiSurveyModule } from './modules/buddhashanti-survey/buddhashanti-survey.module';
 import configuration from './config/configuration';
+import { KerabariSurveyModule } from './modules/kerabari-survey/kerabari-survey.module';
 
 @Module({
   imports: [
@@ -62,6 +63,7 @@ import configuration from './config/configuration';
     AreaModule,
     OdkModule,
     BuddhashantiSurveyModule, // Add BuddhashantiSurveyModule here
+    KerabariSurveyModule, // Add KerabariSurveyModule here
   ],
   controllers: [AppController],
   providers: [

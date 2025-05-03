@@ -30,4 +30,4 @@ import { BuildingProcessorService } from './services/processors/building-process
   ],
   exports: [BuildingAggregateService, ParserServiceImpl],
 })
-export class kerabariSurveyModule {}
+export class KerabariSurveyModule {}
