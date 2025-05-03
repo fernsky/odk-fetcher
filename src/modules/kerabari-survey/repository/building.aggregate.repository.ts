@@ -144,11 +144,8 @@ export class BuildingAggregateRepositoryImpl
       payload.id = id;
 
       // Generate SQL update statement using jsonToPostgres with the proper CONFLICT option
-      const statement = jsonToPostgres(
-        'kerabari_aggregate_buildings',
-        payload,
-        `ON CONFLICT(id) DO UPDATE SET`, // Specify the conflict resolution
-      );
+      const statement = jsonToPostgres('kerabari_aggregate_buildings', payload);
+      console.log(statement);
 
       if (statement) {
         this.logger.debug('Executing SQL update statement');
