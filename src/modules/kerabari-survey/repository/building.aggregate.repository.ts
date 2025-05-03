@@ -1,9 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { BuildingAggregateRepository } from '../interfaces/repository.interface';
 import {
-  kerabariAggregateBuilding,
-  kerabariAggregateBuilding,
-  NewkerabariAggregateBuilding,
+  KerabariAggregateBuilding,
+  NewKerabariAggregateBuilding,
 } from '../model/kerabari-aggregate-buildings';
 import { kerabariDb } from '../../../modules/drizzle/kerabari-db';
 import { eq } from 'drizzle-orm';
@@ -17,7 +16,7 @@ export class BuildingAggregateRepositoryImpl
   private readonly logger = new Logger(BuildingAggregateRepositoryImpl.name);
 
   async saveAggregateBuilding(
-    buildingData: any | NewkerabariAggregateBuilding,
+    buildingData: any | NewKerabariAggregateBuilding,
   ): Promise<void> {
     try {
       this.logger.debug(
@@ -45,10 +44,7 @@ export class BuildingAggregateRepositoryImpl
       payload.updated_at = new Date().toISOString().split('.')[0];
 
       // Use jsonToPostgres to generate the SQL statement
-      const statement = jsonToPostgres(
-        'kerabari_aggregate_buildings',
-        payload,
-      );
+      const statement = jsonToPostgres('kerabari_aggregate_buildings', payload);
 
       if (statement) {
         this.logger.debug('Executing SQL insert statement');
@@ -81,8 +77,8 @@ export class BuildingAggregateRepositoryImpl
       );
       const results = await kerabariDb
         .select()
-        .from(kerabariAggregateBuilding)
-        .where(eq(kerabariAggregateBuilding.building_token, buildingToken))
+        .from(KerabariAggregateBuilding)
+        .where(eq(KerabariAggregateBuilding.building_token, buildingToken))
         .limit(1);
 
       if (results.length > 0) {
@@ -107,13 +103,13 @@ export class BuildingAggregateRepositoryImpl
     }
   }
 
-  async findById(id: string): Promise<kerabariAggregateBuilding | null> {
+  async findById(id: string): Promise<KerabariAggregateBuilding | null> {
     try {
       this.logger.debug(`Finding aggregate building by ID: ${id}`);
       const results = await kerabariDb
         .select()
-        .from(kerabariAggregateBuilding)
-        .where(eq(kerabariAggregateBuilding.id, id))
+        .from(KerabariAggregateBuilding)
+        .where(eq(KerabariAggregateBuilding.id, id))
         .limit(1);
 
       if (results.length > 0) {
@@ -136,7 +132,7 @@ export class BuildingAggregateRepositoryImpl
 
   async updateAggregateBuilding(
     id: string,
-    data: Partial<kerabariAggregateBuilding>,
+    data: Partial<KerabariAggregateBuilding>,
   ): Promise<void> {
     try {
       this.logger.debug(`Updating aggregate building with ID: ${id}`);

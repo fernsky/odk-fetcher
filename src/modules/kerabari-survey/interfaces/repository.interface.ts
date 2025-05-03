@@ -1,6 +1,6 @@
 import {
-  kerabariAggregateBuilding,
-  NewkerabariAggregateBuilding,
+  KerabariAggregateBuilding,
+  NewKerabariAggregateBuilding,
 } from '../model/kerabari-aggregate-buildings';
 import { RawBuildingData } from '../../odk/kerabari-services/parser/parse-buildings';
 import { RawFamily } from '../../odk/kerabari-services/parser/family/types';
@@ -29,14 +29,14 @@ export interface BuildingSurveyRepository {
 
 export interface BuildingAggregateRepository {
   saveAggregateBuilding(
-    buildingData: NewkerabariAggregateBuilding,
+    buildingData: NewKerabariAggregateBuilding,
   ): Promise<void>;
   findByBuildingToken(
     buildingToken: string,
-  ): Promise<kerabariAggregateBuilding | null>;
-  findById(id: string): Promise<kerabariAggregateBuilding | null>;
+  ): Promise<KerabariAggregateBuilding | null>;
+  findById(id: string): Promise<KerabariAggregateBuilding | null>;
   updateAggregateBuilding(
     id: string,
-    data: Partial<kerabariAggregateBuilding>,
+    data: Partial<KerabariAggregateBuilding>,
   ): Promise<void>;
 }

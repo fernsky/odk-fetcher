@@ -11,7 +11,7 @@ import { HouseholdData } from './household-data.model';
 import { BusinessData } from './business-data.model';
 
 // Aggregated building data
-export const kerabariAggregateBuilding = pgTable(
+export const KerabariAggregateBuilding = pgTable(
   'kerabari_aggregate_buildings',
   {
     // Primary identifier
@@ -110,8 +110,8 @@ export const kerabariAggregateBuilding = pgTable(
   },
 );
 
-export type kerabariAggregateBuilding =
-  typeof kerabariAggregateBuilding.$inferSelect;
+export type KerabariAggregateBuilding =
+  typeof KerabariAggregateBuilding.$inferSelect;
 
-export type NewkerabariAggregateBuilding =
-  typeof kerabariAggregateBuilding.$inferInsert;
+export type NewKerabariAggregateBuilding =
+  typeof KerabariAggregateBuilding.$inferInsert;
