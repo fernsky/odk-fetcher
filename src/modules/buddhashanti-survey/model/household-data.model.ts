@@ -55,7 +55,7 @@ export interface HouseholdData {
   loaned_organizations: string[];
   loan_use: string[];
   financial_organizations: string[];
-  has_insurance: boolean;
+  has_insurance: string[];
   health_organization: string;
   health_organization_other?: string | null;
   income_sources: string[];
@@ -94,7 +94,13 @@ export interface HouseholdData {
 
   // Aquaculture and apiculture
   has_aquaculture: boolean;
+  pond_count: number | null;
+  pond_area: number | null;
+  fish_production: number | null;
+
   has_apiculture: boolean;
+  hive_count: number | null;
+  honey_production: number | null;
 
   // Birth place and prior location
   birth_place: string;
@@ -187,6 +193,18 @@ interface HouseholdMemberData {
   primary_occupation?: string | null;
   work_barrier?: string | null;
   work_availability?: string | null;
+
+  // Absentee
+  // Absentee
+  is_absent?: boolean;
+  absence_education_level?: string;
+  absence_reason?: string;
+  absence_location?: string;
+  absence_province?: string | null;
+  absence_district?: string | null;
+  absence_country?: string | null;
+  sends_remittance?: boolean;
+  remittance_amount?: number | null;
 }
 
 /**
@@ -269,7 +287,7 @@ interface AbsenteeData {
   absentee_name: string;
   gender: string;
   age: number;
-  education_level: string;
+  absence_education_level: string;
   absence_reason: string;
   location: string;
   province?: string | null;

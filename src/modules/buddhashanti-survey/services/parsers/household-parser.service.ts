@@ -133,24 +133,21 @@ export class HouseholdParserService extends BaseParserService {
         residence_reasons_other: null,
       };
 
-      if (
-        formData.id?.members?.are_a_family === 'yes' &&
-        formData.family_location
-      ) {
-        const fl = formData.family_location;
+      if (formData.id?.members?.are_a_family === 'yes' && formData.bp) {
+        const fl = formData.bp;
 
         birthPlaceDetails.birth_place =
           decodeSingleChoice(fl.birth_place, familyChoices.birth_places) || '';
 
-        if (
-          fl.birth_place === 'elsewhere_in_district' ||
-          fl.birth_place === 'elsewhere_in_nepal'
-        ) {
+        if (fl.birth_place === 'another_district') {
           birthPlaceDetails.birth_province = decodeSingleChoice(
             fl.birth_province,
             familyChoices.provinces,
           );
-          birthPlaceDetails.birth_district = fl.birth_district;
+          birthPlaceDetails.birth_district = decodeSingleChoice(
+            fl.birth_district,
+            familyChoices.districts,
+          );
         } else if (fl.birth_place === 'abroad') {
           birthPlaceDetails.birth_country = decodeSingleChoice(
             fl.birth_country,
@@ -158,35 +155,35 @@ export class HouseholdParserService extends BaseParserService {
           );
         }
 
-        if (fl.prior_residence === 'yes') {
+        if (formData.plocation.prior_location) {
           priorLocationDetails.prior_location = decodeSingleChoice(
-            fl.prior_location,
+            formData.plocation.prior_location,
             familyChoices.locations,
           );
 
-          if (
-            fl.prior_location === 'elsewhere_in_district' ||
-            fl.prior_location === 'elsewhere_in_nepal'
-          ) {
+          if (fl.prior_location === 'another_district') {
             priorLocationDetails.prior_province = decodeSingleChoice(
-              fl.prior_province,
+              formData.plocation.prior_province,
               familyChoices.provinces,
             );
-            priorLocationDetails.prior_district = fl.prior_district;
+            priorLocationDetails.prior_district = decodeSingleChoice(
+              formData.plocation.prior_district,
+              familyChoices.districts,
+            );
           } else if (fl.prior_location === 'abroad') {
             priorLocationDetails.prior_country = decodeSingleChoice(
-              fl.prior_country,
+              formData.plocation.prior_country,
               familyChoices.countries,
             );
           }
 
           priorLocationDetails.residence_reasons =
             decodeMultipleChoices(
-              fl.residence_reasons,
+              formData.plocation.residence_reasons,
               familyChoices.residence_reasons,
             ) || [];
           priorLocationDetails.residence_reasons_other =
-            fl.residence_reasons_oth || null;
+            formData.plocation.residence_reasons_other || null;
         }
       }
 
@@ -217,22 +214,22 @@ export class HouseholdParserService extends BaseParserService {
 
         if (formData.agri.is_farmer === 'yes') {
           agriInfo.total_male_farmers =
-            parseInt(formData.agri.total_male_fam_farmers || '0', 10) || 0;
+            parseInt(formData.agri.total_male_farmer || '0', 10) || 0;
           agriInfo.total_female_farmers =
-            parseInt(formData.agri.total_female_fam_farmers || '0', 10) || 0;
+            parseInt(formData.agri.total_female_farmer || '0', 10) || 0;
           agriInfo.months_sustained_from_agriculture =
             decodeSingleChoice(
-              formData.agri.agriculture_sustained_months,
+              formData.agri.months_sustained_from_agriculture,
               familyChoices.agricultural_months,
             ) || '';
           agriInfo.months_involved_in_agriculture =
             decodeSingleChoice(
-              formData.agri.months_agriculture,
+              formData.agri.months_involved_in_agriculture,
               familyChoices.agricultural_months,
             ) || '';
           agriInfo.agricultural_machinery =
             decodeMultipleChoices(
-              formData.agri.agri_machinery,
+              formData.agri.agri_machines,
               familyChoices.agricultural_machinery,
             ) || [];
         }
@@ -254,12 +251,18 @@ export class HouseholdParserService extends BaseParserService {
       }
 
       // Aquaculture and apiculture
+
       const aquacultureInfo = {
-        has_aquaculture: formData.agri?.aquaculture === 'yes' || false,
+        has_aquaculture: formData.agri?.has_aquacultured === 'yes' || false,
+        pond_count: formData.agri?.aquaculture_details?.pond_no || null,
+        pond_area: formData.agri?.aquaculture_details?.pond_area || null,
+        fish_production: formData.agri?.aquaculture_details?.fish_prod || null,
       };
 
       const apicultureInfo = {
-        has_apiculture: formData.agri?.apiculture === 'yes' || false,
+        has_apiculture: formData.agri?.has_apicultured === 'yes' || false,
+        hive_count: formData.agri?.apiculture_details?.hive_no || null,
+        honey_production: formData.agri?.apiculture_details?.honey_prod || null,
       };
 
       // Process household members
@@ -379,7 +382,10 @@ export class HouseholdParserService extends BaseParserService {
             formData.hh?.has_bacc,
             familyChoices.financial_organization,
           ) || [],
-        has_insurance: formData.hh?.has_insurance === 'yes',
+        has_insurance: decodeMultipleChoices(
+          formData.hh.has_insurance,
+          familyChoices.insurances,
+        ),
         health_organization:
           decodeSingleChoice(
             formData.hh?.health_org,
@@ -630,7 +636,7 @@ export class HouseholdParserService extends BaseParserService {
           const fertilityRecord = formData.fertility?.find(
             (f) =>
               f.fertility_name === individual.name &&
-              parseInt(f.ftd?.fertility_age || '0', 10) === individual.age,
+              parseInt(f.fertility_age || '0', 10) === individual.age,
           );
 
           if (fertilityRecord?.ftd) {
@@ -760,6 +766,7 @@ export class HouseholdParserService extends BaseParserService {
           member['is_absent'] = false;
           member['absence_reason'] = null;
           member['absence_location'] = null;
+          member['absence_educational_level'] = null;
           member['absence_province'] = null;
           member['absence_district'] = null;
           member['absence_country'] = null;
@@ -777,13 +784,12 @@ export class HouseholdParserService extends BaseParserService {
 
       // Process absentees directly here and update corresponding household members
       if (
-        formData.absent &&
-        formData.absent.has_absent === 'yes' &&
-        formData.absent.abs &&
-        Array.isArray(formData.absent.abs) &&
-        formData.absent.abs.length > 0
+        formData.id.ewheres.are_ewhere === 'yes' &&
+        formData.absentees &&
+        Array.isArray(formData.absentees) &&
+        formData.absentees.length > 0
       ) {
-        for (const absentee of formData.absent.abs) {
+        for (const absentee of formData.absentees) {
           try {
             // Try to find matching individual in household_members
             const matchingMember = members.find(
@@ -802,33 +808,37 @@ export class HouseholdParserService extends BaseParserService {
               // Update the household member with absentee information
               matchingMember.is_absent = true;
               matchingMember.absence_reason = decodeSingleChoice(
-                absentee.abs_reason,
+                absentee.abid.absence_reason,
                 familyChoices.absence_reasons,
               );
               matchingMember.absence_location = decodeSingleChoice(
-                absentee.abs_location,
+                absentee.abid.abl.abs_location,
                 familyChoices.locations,
               );
               matchingMember.sends_remittance =
-                absentee.abs_sends_remittance === 'yes';
+                absentee.abid.sent_cash === 'sent';
               matchingMember.remittance_amount =
-                absentee.abs_sends_remittance === 'yes'
-                  ? absentee.abs_remittance_amount || null
+                absentee.abid.sent_cash === 'sent'
+                  ? absentee.abid.cash || null
                   : null;
+              matchingMember.absence_educational_level = decodeSingleChoice(
+                absentee.abid.abs_edulvl,
+                familyChoices.educational_level,
+              );
 
               // Add location details based on the absence location
-              if (
-                absentee.abs_location === 'elsewhere_in_district' ||
-                absentee.abs_location === 'elsewhere_in_nepal'
-              ) {
+              if (absentee.abid.abl.abs_location === 'another_district') {
                 matchingMember.absence_province = decodeSingleChoice(
-                  absentee.abs_province,
+                  absentee.abid.abl.abs_province,
                   familyChoices.provinces,
                 );
-                matchingMember.absence_district = absentee.abs_district;
-              } else if (absentee.abs_location === 'abroad') {
+                matchingMember.absence_district = decodeSingleChoice(
+                  absentee.abid.abl.abs_district,
+                  familyChoices.districts,
+                );
+              } else if (absentee.abid.abl.abs_location === 'another_country') {
                 matchingMember.absence_country = decodeSingleChoice(
-                  absentee.abs_country,
+                  absentee.abid.abl.abs_country,
                   familyChoices.countries,
                 );
               }
@@ -855,7 +865,7 @@ export class HouseholdParserService extends BaseParserService {
                 is_absent: true,
                 absence_reason:
                   decodeSingleChoice(
-                    absentee.abs_reason,
+                    absentee.abid.absence_reason,
                     familyChoices.absence_reasons,
                   ) || '',
                 absence_location:
@@ -874,18 +884,16 @@ export class HouseholdParserService extends BaseParserService {
               };
 
               // Add location details based on the absence location
-              if (
-                absentee.abs_location === 'elsewhere_in_district' ||
-                absentee.abs_location === 'elsewhere_in_nepal'
-              ) {
+              if (absentee.abid.abl.abs_location === 'another_district') {
                 newMemberFromAbsentee.absence_province = decodeSingleChoice(
-                  absentee.abs_province,
+                  absentee.abid.abl.abs_province,
                   familyChoices.provinces,
                 );
-                newMemberFromAbsentee.absence_district = absentee.abs_district;
-              } else if (absentee.abs_location === 'abroad') {
+                newMemberFromAbsentee.absence_district =
+                  absentee.abid.abl.abs_district;
+              } else if (absentee.abs_location === 'another_country') {
                 newMemberFromAbsentee.absence_country = decodeSingleChoice(
-                  absentee.abs_country,
+                  absentee.abid.abl.abs_country,
                   familyChoices.countries,
                 );
               }
@@ -944,7 +952,10 @@ export class HouseholdParserService extends BaseParserService {
                 land.irrigation_src,
                 familyChoices.irrigation_source,
               ) || '',
-            irrigation_time: land.irrigation?.irrigation_time || null,
+            irrigation_time: decodeSingleChoice(
+              land.irrigation_time,
+              familyChoices.irrigation_time,
+            ),
             irrigated_land_area:
               land.irrigation_src === 'no_irrigation'
                 ? null
