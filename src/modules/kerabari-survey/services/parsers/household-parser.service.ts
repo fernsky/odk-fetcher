@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { SurveyData } from '@app/modules/drizzle/buddhashanti-db/schema';
-import { RawFamily } from '../../../odk/buddhashanti-services/parser/family/types';
+import { SurveyData } from '@app/modules/drizzle/kerabari-db/schema';
+import { RawFamily } from '../../../odk/kerabari-services/parser/family/types';
 import { HouseholdData } from '../../model/household-data.model';
 import { BaseParserService } from './base-parser.service';
 import {
   decodeSingleChoice,
   decodeMultipleChoices,
 } from '@app/common/utils/data';
-import { familyChoices } from '../../../odk/buddhashanti-services/resources/family';
+import { familyChoices } from '../../../odk/kerabari-services/resources/family';
 
 @Injectable()
 export class HouseholdParserService extends BaseParserService {

@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { SurveyData } from '@app/modules/drizzle/buddhashanti-db/schema';
-import { RawBuildingData } from '../../../odk/buddhashanti-services/parser/parse-buildings';
+import { SurveyData } from '@app/modules/drizzle/kerabari-db/schema';
+import { RawBuildingData } from '../../../odk/kerabari-services/parser/parse-buildings';
 import { BaseParserService } from './base-parser.service';
 import { decodeSingleChoice } from '@app/common/utils/data';
-import { buildingChoices } from '../../../odk/buddhashanti-services/resources/building';
+import { buildingChoices } from '../../../odk/kerabari-services/resources/building';
 
 @Injectable()
 export class BuildingParserService extends BaseParserService {
