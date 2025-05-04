@@ -166,6 +166,16 @@ export const surveyData = pgTable('odk_survey_data', {
   updated_at: timestamp('updated_at').$onUpdate(() => new Date()),
 });
 
+export interface SurveyData<T> {
+  id: string;
+  formId: string;
+  dataId: string;
+  data: T;
+  createdAt: Date;
+  updatedAt: Date;
+  isParsed: boolean;
+}
+
 export const attachmentTypesEnum = pgEnum('attachment', [
   'audio_monitoring',
   'building_image',
