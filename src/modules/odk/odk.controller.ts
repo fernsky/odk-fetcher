@@ -215,4 +215,67 @@ export class OdkController {
       });
     }
   }
+
+  @Get('lungri')
+  async getLungriData() {
+    return this.odkService.getLungriData();
+  }
+
+  @Get('lungri/fetch-status')
+  getLungriFetchStatus(@Query('id') formId: string) {
+    return (
+      this.fetchLocks.get(formId) || {
+        status: 'COMPLETED',
+        message: 'No active fetch',
+      }
+    );
+  }
+
+  @Post('lungri/fetch-submissions')
+  async fetchLungriSubmissions(@Body() input: FetchSubmissionsDto) {
+    if (this.fetchLocks.get(input.id)?.status === 'IN_PROGRESS') {
+      throw new HttpException(
+        'Fetch operation already in progress for this form',
+        HttpStatus.CONFLICT,
+      );
+    }
+
+    this.fetchLocks.set(input.id, {
+      status: 'INITIATED',
+      message: 'Starting fetch operation',
+      timestamp: new Date(),
+    });
+
+    this.startLungriFetch(input);
+
+    return {
+      message: 'Fetch operation initiated',
+      status: 'INITIATED',
+      checkStatusAt: `/odk/lungri/fetch-status?id=${input.id}`,
+    };
+  }
+
+  private async startLungriFetch(input: FetchSubmissionsDto) {
+    try {
+      this.fetchLocks.set(input.id, {
+        status: 'IN_PROGRESS',
+        message: 'Fetching submissions',
+        timestamp: new Date(),
+      });
+
+      await this.odkService.fetchLungriSubmissions(input);
+
+      this.fetchLocks.set(input.id, {
+        status: 'COMPLETED',
+        message: 'Fetch operation completed successfully',
+        timestamp: new Date(),
+      });
+    } catch (error) {
+      this.fetchLocks.set(input.id, {
+        status: 'ERROR',
+        message: `Error during fetch: ${error}`,
+        timestamp: new Date(),
+      });
+    }
+  }
 }

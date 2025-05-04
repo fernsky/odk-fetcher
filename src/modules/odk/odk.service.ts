@@ -11,6 +11,9 @@ import { generateHourlyIntervals } from './utils';
 import { gadhawaDb } from '../drizzle/gadhawa-db';
 import { surveyForms as gadhawaSurveyForms } from '../drizzle/gadhawa-db/schema';
 import { fetchSurveySubmissions as fetchGadhawaSurveySubmissions } from './gadhawa-services/utils';
+import { lungriDb } from '../drizzle/lungri-db';
+import { surveyForms as lungriSurveyForms } from '../drizzle/lungri-db/schema';
+import { fetchSurveySubmissions as fetchLungriSurveySubmissions } from './lungri-services/utils';
 
 @Injectable()
 export class OdkService {
@@ -187,6 +190,63 @@ export class OdkService {
           count: 100000,
         },
         { db: gadhawaDb, minio },
+      );
+
+      console.log(`Completed interval ${index + 1}/${timeIntervals.length}`);
+    }
+    return true;
+  }
+
+  async getLungriData() {
+    return {
+      title: 'Lungri Rural Municipality',
+      address: 'Rolpa, Lumbini Province',
+    };
+  }
+
+  async fetchLungriSubmissions({ id, startDate, endDate }) {
+    const surveyForm = await lungriDb
+      .select()
+      .from(lungriSurveyForms)
+      .where(eq(lungriSurveyForms.id, id))
+      .limit(1);
+
+    if (!surveyForm.length) {
+      throw new Error('Survey form not found');
+    }
+
+    const {
+      userName,
+      password,
+      odkFormId,
+      odkProjectId,
+      siteEndpoint,
+      attachmentPaths,
+    } = surveyForm[0];
+
+    console.log('Fetching submissions for Lungri form:', surveyForm[0].name);
+    const timeIntervals = generateHourlyIntervals(startDate, endDate);
+    console.log(`Generated ${timeIntervals.length} hourly intervals`);
+
+    for (const [index, interval] of timeIntervals.entries()) {
+      console.log(`Processing interval ${index + 1}/${timeIntervals.length}`);
+      console.log(`Start: ${interval.start}`);
+      console.log(`End: ${interval.end}`);
+
+      await fetchLungriSurveySubmissions(
+        {
+          siteEndpoint: siteEndpoint as string,
+          userName: userName as string,
+          password: password as string,
+          odkFormId: odkFormId as string,
+          odkProjectId: odkProjectId as number,
+          attachmentPaths: attachmentPaths as any[],
+          formId: id,
+          startDate: interval.start,
+          endDate: interval.end,
+          count: 100000,
+        },
+        { db: lungriDb, minio },
       );
 
       console.log(`Completed interval ${index + 1}/${timeIntervals.length}`);
