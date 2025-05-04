@@ -31,6 +31,7 @@ import { BuddhashantiSurveyModule } from './modules/buddhashanti-survey/buddhash
 import configuration from './config/configuration';
 import { KerabariSurveyModule } from './modules/kerabari-survey/kerabari-survey.module';
 import { GadhawaSurveyModule } from './modules/gadhawa-survey/gadhawa-survey.module';
+import { lungriSurveyModule } from './modules/lungri-survey/gadhawa-survey.module';
 
 @Module({
   imports: [
@@ -66,6 +67,7 @@ import { GadhawaSurveyModule } from './modules/gadhawa-survey/gadhawa-survey.mod
     BuddhashantiSurveyModule, // Add BuddhashantiSurveyModule here
     KerabariSurveyModule, // Add KerabariSurveyModule here
     GadhawaSurveyModule,
+    lungriSurveyModule,
   ],
   controllers: [AppController],
   providers: [
