@@ -14,6 +14,9 @@ import { fetchSurveySubmissions as fetchGadhawaSurveySubmissions } from './gadha
 import { lungriDb } from '../drizzle/lungri-db';
 import { surveyForms as lungriSurveyForms } from '../drizzle/lungri-db/schema';
 import { fetchSurveySubmissions as fetchLungriSurveySubmissions } from './lungri-services/utils';
+import { duduwaDb } from '../drizzle/duduwa-db';
+import { surveyForms as duduwaSurveyForms } from '../drizzle/duduwa-db/schema';
+import { fetchSurveySubmissions as fetchDuduwaSurveySubmissions } from './duduwa-services/utils';
 
 @Injectable()
 export class OdkService {
@@ -247,6 +250,63 @@ export class OdkService {
           count: 100000,
         },
         { db: lungriDb, minio },
+      );
+
+      console.log(`Completed interval ${index + 1}/${timeIntervals.length}`);
+    }
+    return true;
+  }
+
+  async getDuduwaData() {
+    return {
+      title: 'Duduwa Rural Municipality',
+      address: 'Banke, Lumbini Province',
+    };
+  }
+
+  async fetchDuduwaSubmissions({ id, startDate, endDate }) {
+    const surveyForm = await duduwaDb
+      .select()
+      .from(duduwaSurveyForms)
+      .where(eq(duduwaSurveyForms.id, id))
+      .limit(1);
+
+    if (!surveyForm.length) {
+      throw new Error('Survey form not found');
+    }
+
+    const {
+      userName,
+      password,
+      odkFormId,
+      odkProjectId,
+      siteEndpoint,
+      attachmentPaths,
+    } = surveyForm[0];
+
+    console.log('Fetching submissions for Duduwa form:', surveyForm[0].name);
+    const timeIntervals = generateHourlyIntervals(startDate, endDate);
+    console.log(`Generated ${timeIntervals.length} hourly intervals`);
+
+    for (const [index, interval] of timeIntervals.entries()) {
+      console.log(`Processing interval ${index + 1}/${timeIntervals.length}`);
+      console.log(`Start: ${interval.start}`);
+      console.log(`End: ${interval.end}`);
+
+      await fetchDuduwaSurveySubmissions(
+        {
+          siteEndpoint: siteEndpoint as string,
+          userName: userName as string,
+          password: password as string,
+          odkFormId: odkFormId as string,
+          odkProjectId: odkProjectId as number,
+          attachmentPaths: attachmentPaths as any[],
+          formId: id,
+          startDate: interval.start,
+          endDate: interval.end,
+          count: 100000,
+        },
+        { db: duduwaDb, minio },
       );
 
       console.log(`Completed interval ${index + 1}/${timeIntervals.length}`);

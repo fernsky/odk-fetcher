@@ -278,4 +278,67 @@ export class OdkController {
       });
     }
   }
+
+  @Get('duduwa')
+  async getDuduwaData() {
+    return this.odkService.getDuduwaData();
+  }
+
+  @Get('duduwa/fetch-status')
+  getDuduwaFetchStatus(@Query('id') formId: string) {
+    return (
+      this.fetchLocks.get(formId) || {
+        status: 'COMPLETED',
+        message: 'No active fetch',
+      }
+    );
+  }
+
+  @Post('duduwa/fetch-submissions')
+  async fetchDuduwaSubmissions(@Body() input: FetchSubmissionsDto) {
+    if (this.fetchLocks.get(input.id)?.status === 'IN_PROGRESS') {
+      throw new HttpException(
+        'Fetch operation already in progress for this form',
+        HttpStatus.CONFLICT,
+      );
+    }
+
+    this.fetchLocks.set(input.id, {
+      status: 'INITIATED',
+      message: 'Starting fetch operation',
+      timestamp: new Date(),
+    });
+
+    this.startDuduwaFetch(input);
+
+    return {
+      message: 'Fetch operation initiated',
+      status: 'INITIATED',
+      checkStatusAt: `/odk/duduwa/fetch-status?id=${input.id}`,
+    };
+  }
+
+  private async startDuduwaFetch(input: FetchSubmissionsDto) {
+    try {
+      this.fetchLocks.set(input.id, {
+        status: 'IN_PROGRESS',
+        message: 'Fetching submissions',
+        timestamp: new Date(),
+      });
+
+      await this.odkService.fetchDuduwaSubmissions(input);
+
+      this.fetchLocks.set(input.id, {
+        status: 'COMPLETED',
+        message: 'Fetch operation completed successfully',
+        timestamp: new Date(),
+      });
+    } catch (error) {
+      this.fetchLocks.set(input.id, {
+        status: 'ERROR',
+        message: `Error during fetch: ${error}`,
+        timestamp: new Date(),
+      });
+    }
+  }
 }
