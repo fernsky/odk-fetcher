@@ -31,7 +31,7 @@ export async function syncBuildingSurvey(
   const enumeratorId = data.enumerator_id;
 
   // Find enumerator
-  const enumerator = await handleEnumerator(ctx, enumeratorId, recordId);
+  //const enumerator = await handleEnumerator(ctx, enumeratorId, recordId);
 
   // Handle Ward Number
   console.log('Fetching ward number..');
@@ -39,13 +39,13 @@ export async function syncBuildingSurvey(
   console.log('Fetched ward number...', ward);
 
   // Handle Area Code
-  await handlAreaCode(ctx, areaCode, recordId);
+  //await handlAreaCode(ctx, areaCode, recordId);
 
   // Handle building token allocation
-  await handleBuildingToken(ctx, buildingToken, recordId);
+  //await handleBuildingToken(ctx, buildingToken, recordId);
 
   // Update area status if needed
-  await updateAreaStatus(ctx, enumerator?.[0]?.id, areaCode);
+  //await updateAreaStatus(ctx, enumerator?.[0]?.id, areaCode);
 }
 
 async function handleEnumerator(

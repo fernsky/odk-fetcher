@@ -206,7 +206,7 @@ export async function parseAndInsertInStaging(data: RawBuildingData, ctx: any) {
   // Transform and normalize the data according to database schema
   const payload = {
     id: r.__id, // Unique identifier for the record
-    survey_date: new Date(r.survey_date).toISOString(),
+    survey_date: r.survey_date,
     enumerator_name: r.enumerator_name,
     enumerator_id: r.enumerator_id,
 

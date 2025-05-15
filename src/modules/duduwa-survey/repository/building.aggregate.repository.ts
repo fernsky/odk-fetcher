@@ -28,15 +28,11 @@ export class BuildingAggregateRepositoryImpl
 
       // Ensure dates are properly formatted for PostgreSQL
       if (payload.building_survey_date) {
-        payload.building_survey_date = this.formatDateForDB(
-          payload.building_survey_date,
-        );
+        payload.building_survey_date = payload.building_survey_date;
       }
 
       if (payload.building_submission_date) {
-        payload.building_submission_date = this.formatDateForDB(
-          payload.building_submission_date,
-        );
+        payload.building_submission_date = payload.building_submission_date;
       }
 
       // Always set created_at and updated_at

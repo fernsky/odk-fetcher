@@ -8,8 +8,8 @@ config(); // Initialize dotenv
 
 let connection;
 try {
-  console.log('Attempting to connect to:', env.LUNGRI_DATABASE_URL);
-  connection = postgres(env.LUNGRI_DATABASE_URL, {
+  console.log('Attempting to connect to:', env.DUDUWA_DATABASE_URL);
+  connection = postgres(env.DUDUWA_DATABASE_URL, {
     max_lifetime: 10,
     connect_timeout: 10,
   });
