@@ -49,9 +49,9 @@ export async function syncFamilySurvey(recordId: string, data: any, ctx: any) {
     try {
       const enumerator = await handleEnumerator(ctx, enumeratorId, recordId);
       await handleWardNumber(ctx, wardNumber, recordId);
-      await handleAreaCode(ctx, areaCode, recordId);
-      await handleBuildingToken(ctx, buildingToken, recordId);
-      await updateAreaStatus(ctx, enumerator?.[0]?.id, areaCode);
+      //await handleAreaCode(ctx, areaCode, recordId);
+      //await handleBuildingToken(ctx, buildingToken, recordId);
+      //await updateAreaStatus(ctx, enumerator?.[0]?.id, areaCode);
     } catch (error) {
       console.error(`[Validation Error] Record ${recordId}:`, error);
     }
@@ -254,6 +254,7 @@ async function performFamilySync(ctx: any, recordId: string) {
       .where(eq(stagingduduwaAnimalProduct.familyId, recordId));
 
     // Begin transaction
+    console.log(`Syncing family data for record ID: ${recordId}`);
     await ctx.db.transaction(async (tx: any) => {
       // Insert family data
       await tx
@@ -322,6 +323,8 @@ async function performFamilySync(ctx: any, recordId: string) {
           status: 'pending',
         })
         .onConflictDoNothing();
+
+      console.log(`Synced family data for : ${recordId}`);
 
       // Insert individuals
       if (individuals.length > 0) {
