@@ -228,7 +228,7 @@ export class OdkService {
     } = surveyForm[0];
 
     console.log('Fetching submissions for Lungri form:', surveyForm[0].name);
-    const timeIntervals = generateHourlyIntervals(startDate, endDate);
+    const timeIntervals = generateWeeklyIntervals(startDate, endDate);
     console.log(`Generated ${timeIntervals.length} hourly intervals`);
 
     for (const [index, interval] of timeIntervals.entries()) {
