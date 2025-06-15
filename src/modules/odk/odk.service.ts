@@ -7,7 +7,7 @@ import { fetchSurveySubmissions as fetchKerabariSurveySubmissions } from './kera
 import { fetchSurveySubmissions as fetchBuddhashantiSurveySubmissions } from './buddhashanti-services/utils';
 import { eq } from 'drizzle-orm';
 import { minio } from '@app/config/minio';
-import { generateHourlyIntervals } from './utils';
+import { generateHourlyIntervals, generateWeeklyIntervals } from './utils';
 import { gadhawaDb } from '../drizzle/gadhawa-db';
 import { surveyForms as gadhawaSurveyForms } from '../drizzle/gadhawa-db/schema';
 import { fetchSurveySubmissions as fetchGadhawaSurveySubmissions } from './gadhawa-services/utils';
@@ -171,7 +171,7 @@ export class OdkService {
     } = surveyForm[0];
 
     console.log('Fetching submissions for Gadhawa form:', surveyForm[0].name);
-    const timeIntervals = generateHourlyIntervals(startDate, endDate);
+    const timeIntervals = generateWeeklyIntervals(startDate, endDate);
     console.log(`Generated ${timeIntervals.length} hourly intervals`);
 
     for (const [index, interval] of timeIntervals.entries()) {

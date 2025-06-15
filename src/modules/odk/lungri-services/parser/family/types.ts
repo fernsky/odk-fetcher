@@ -458,9 +458,14 @@ interface IndividualInfo {
     religion_individual?: string | null;
     religion_other_individual?: string | null;
   };
+  five_below?: {
+    vaccination_condition?: string | null;
+    birth_certification?: string | null;
+  };
   mrd: {
     marital_status: string;
     married_age: number;
+    marriage_regd?: string | null;
   };
   __id: string;
 }
@@ -541,15 +546,14 @@ interface AbsenteeLocation {
   abs_country?: string | null;
   FOREIGN: string;
 }
-
 interface AbsenteeIdentification {
-  abs_age: number;
-  abs_edulvl: string;
-  ABSPRD: string;
-  absence_reason: string;
+  abs_age: number | null;
+  abs_edulvl: string | null;
+  ABSPRD: string | null;
+  absence_reason: string | null;
   abl: AbsenteeLocation;
-  sent_cash: string;
-  cash: number;
+  sent_cash: string | null;
+  cash: number | null;
 }
 
 interface Absentee {

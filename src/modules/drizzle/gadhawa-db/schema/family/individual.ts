@@ -26,6 +26,8 @@ export const staginggadhawaIndividual = pgTable('staging_gadhawa_individual', {
   religion: varchar('religion', { length: 100 }),
   religionOther: varchar('religion_other', { length: 255 }),
 
+  hasBirthCertificate: varchar('has_birth_certificate', { length: 100 }),
+
   // Marital Status
   maritalStatus: varchar('marital_status', { length: 100 }),
   marriedAge: integer('married_age'),
@@ -125,6 +127,8 @@ export const gadhawaIndividual = pgTable('gadhawa_individual', {
   religion: varchar('religion', { length: 100 }),
   religionOther: varchar('religion_other', { length: 255 }),
 
+  hasBirthCertificate: varchar('has_birth_certificate', { length: 100 }),
+
   // Marital Status
   maritalStatus: varchar('marital_status', { length: 100 }),
   marriedAge: integer('married_age'),
@@ -139,9 +143,6 @@ export const gadhawaIndividual = pgTable('gadhawa_individual', {
   disabilityType: varchar('disability_type', { length: 100 }),
   disabilityTypeOther: varchar('disability_type_other', { length: 255 }),
   disabilityCause: varchar('disability_cause', { length: 100 }),
-
-  // Documents
-  hasBirthCertificate: varchar('has_birth_certificate', { length: 100 }),
 
   // Fertility and Birth Information
   gaveLiveBirth: varchar('gave_live_birth', { length: 100 }),

@@ -58,7 +58,7 @@ export const stagingFamily = pgTable('staging_lungri_family', {
   femaleProperties: text('female_properties'),
   loanedOrganizations: text('loaned_organizations').array(),
   loanUse: text('loan_use').array(),
-  hasBank: text('has_bank'),
+  hasBank: text('has_bank').array(),
   hasInsurance: text('has_insurance'),
   healthOrg: text('health_org'),
   healthOrgOther: text('health_org_other'),
@@ -134,7 +134,7 @@ export const family = pgTable('lungri_family', {
   healthOrg: text('health_org'),
   healthOrgOther: text('health_org_other'),
   incomeSources: text('income_sources').array(),
-  municipalSuggestions: text('municipal_suggestions'),
+  municipalSuggestions: text('municipal_suggestions').array(),
   municipalSuggestionsOther: text('municipal_suggestions_other'),
 
   // Additional Data
