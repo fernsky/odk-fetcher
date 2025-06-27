@@ -10,7 +10,6 @@ import {
   boolean,
   text,
 } from 'drizzle-orm/pg-core';
-
 import { geometry } from '../../types/geographical';
 
 export const pgTable = pgTableCreator((name) => `acme_${name}`);
@@ -162,13 +161,9 @@ export const surveyData = pgTable('odk_survey_data', {
   formId: varchar('form_id', { length: 255 })
     .notNull()
     .references(() => surveyForms.id),
-  dataId: varchar('data_id', { length: 55 }),
   data: json('data').notNull(),
   created_at: timestamp('created_at').defaultNow().notNull(),
   updated_at: timestamp('updated_at').$onUpdate(() => new Date()),
-  // The isParsed field is used to check if the data has been parsed or not.
-  // If it is true, then the data has been parsed and is skipped.
-  isParsed: boolean('is_parsed').default(false),
 });
 
 export interface SurveyData<T> {

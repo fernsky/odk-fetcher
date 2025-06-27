@@ -1,7 +1,7 @@
 import { pgTable, varchar, integer } from 'drizzle-orm/pg-core';
 import { family } from './family';
 
-export const stagingBuddhashantiIndividual = pgTable(
+export const stagingbuddhashantiIndividual = pgTable(
   'staging_buddhashanti_individual',
   {
     // Primary Keys and Basic Info
@@ -27,6 +27,8 @@ export const stagingBuddhashantiIndividual = pgTable(
     }),
     religion: varchar('religion', { length: 100 }),
     religionOther: varchar('religion_other', { length: 255 }),
+
+    hasBirthCertificate: varchar('has_birth_certificate', { length: 100 }),
 
     // Marital Status
     maritalStatus: varchar('marital_status', { length: 100 }),
@@ -128,6 +130,8 @@ export const buddhashantiIndividual = pgTable('buddhashanti_individual', {
   religion: varchar('religion', { length: 100 }),
   religionOther: varchar('religion_other', { length: 255 }),
 
+  hasBirthCertificate: varchar('has_birth_certificate', { length: 100 }),
+
   // Marital Status
   maritalStatus: varchar('marital_status', { length: 100 }),
   marriedAge: integer('married_age'),
@@ -142,9 +146,6 @@ export const buddhashantiIndividual = pgTable('buddhashanti_individual', {
   disabilityType: varchar('disability_type', { length: 100 }),
   disabilityTypeOther: varchar('disability_type_other', { length: 255 }),
   disabilityCause: varchar('disability_cause', { length: 100 }),
-
-  // Documents
-  hasBirthCertificate: varchar('has_birth_certificate', { length: 100 }),
 
   // Fertility and Birth Information
   gaveLiveBirth: varchar('gave_live_birth', { length: 100 }),
@@ -203,6 +204,6 @@ export const buddhashantiIndividual = pgTable('buddhashanti_individual', {
   workAvailability: varchar('work_availability', { length: 100 }),
 });
 
-export type BuddhashantiIndividual = typeof buddhashantiIndividual.$inferSelect;
-export type StagingBuddhashantiIndividual =
-  typeof stagingBuddhashantiIndividual.$inferSelect;
+export type buddhashantiIndividual = typeof buddhashantiIndividual.$inferSelect;
+export type StagingbuddhashantiIndividual =
+  typeof stagingbuddhashantiIndividual.$inferSelect;

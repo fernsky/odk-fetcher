@@ -269,17 +269,14 @@ export const business = pgTable('buddhashanti_business', {
 });
 
 // Table for building edit requests
-export const businessEditRequests = pgTable(
-  'buddhashanti_business_edit_requests',
-  {
-    id: varchar('id', { length: 48 }).primaryKey(),
-    businessId: varchar('business_id', { length: 48 }).references(
-      () => business.id,
-    ),
-    message: text('message').notNull(),
-    requestedAt: timestamp('requested_at').defaultNow(),
-  },
-);
+export const businessEditRequests = pgTable('buddhashanti_business_edit_requests', {
+  id: varchar('id', { length: 48 }).primaryKey(),
+  businessId: varchar('business_id', { length: 48 }).references(
+    () => business.id,
+  ),
+  message: text('message').notNull(),
+  requestedAt: timestamp('requested_at').defaultNow(),
+});
 
 export type BusinessEditRequest = typeof businessEditRequests.$inferSelect;
 

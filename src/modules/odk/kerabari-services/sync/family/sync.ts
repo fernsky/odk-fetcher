@@ -5,36 +5,36 @@ import {
   stagingToProduction,
   users,
   wards,
-} from '@app/modules/drizzle/kerabari-db/schema';
+} from '@app/modules/drizzle/gadhawa-db/schema';
 import {
   family,
   stagingFamily,
-} from '@app/modules/drizzle/kerabari-db/schema/family/family';
+} from '@app/modules/drizzle/gadhawa-db/schema/family/family';
 import {
-  stagingkerabariIndividual,
-  kerabariIndividual,
-} from '@app/modules/drizzle/kerabari-db/schema/family/individual';
+  staginggadhawaIndividual,
+  gadhawaIndividual,
+} from '@app/modules/drizzle/gadhawa-db/schema/family/individual';
 import {
-  stagingkerabariDeath,
-  kerabariDeath,
-} from '@app/modules/drizzle/kerabari-db/schema/family/deaths';
+  staginggadhawaDeath,
+  gadhawaDeath,
+} from '@app/modules/drizzle/gadhawa-db/schema/family/deaths';
 import {
-  stagingkerabariCrop,
-  kerabariCrop,
-} from '@app/modules/drizzle/kerabari-db/schema/family/crops';
+  staginggadhawaCrop,
+  gadhawaCrop,
+} from '@app/modules/drizzle/gadhawa-db/schema/family/crops';
 import {
-  stagingkerabariAnimal,
-  kerabariAnimal,
-} from '@app/modules/drizzle/kerabari-db/schema/family/animals';
+  staginggadhawaAnimal,
+  gadhawaAnimal,
+} from '@app/modules/drizzle/gadhawa-db/schema/family/animals';
 import {
-  stagingkerabariAnimalProduct,
-  kerabariAnimalProduct,
-} from '@app/modules/drizzle/kerabari-db/schema/family/animal-products';
+  staginggadhawaAnimalProduct,
+  gadhawaAnimalProduct,
+} from '@app/modules/drizzle/gadhawa-db/schema/family/animal-products';
 
-import { StagingkerabariDeath } from '@app/modules/drizzle/kerabari-db/schema/family/deaths';
-import kerabariAgriculturalLand, {
-  stagingkerabariAgriculturalLand,
-} from '@app/modules/drizzle/kerabari-db/schema/family/agricultural-lands';
+import { StaginggadhawaDeath } from '@app/modules/drizzle/gadhawa-db/schema/family/deaths';
+import gadhawaAgriculturalLand, {
+  staginggadhawaAgriculturalLand,
+} from '@app/modules/drizzle/gadhawa-db/schema/family/agricultural-lands';
 
 export async function syncFamilySurvey(recordId: string, data: any, ctx: any) {
   try {
@@ -225,33 +225,33 @@ async function performFamilySync(ctx: any, recordId: string) {
     // Get related data
     const individuals = await ctx.db
       .select()
-      .from(stagingkerabariIndividual)
-      .where(eq(stagingkerabariIndividual.familyId, recordId));
+      .from(staginggadhawaIndividual)
+      .where(eq(staginggadhawaIndividual.familyId, recordId));
 
     const agriculturalLands = await ctx.db
       .select()
-      .from(stagingkerabariAgriculturalLand)
-      .where(eq(stagingkerabariAgriculturalLand.familyId, recordId));
+      .from(staginggadhawaAgriculturalLand)
+      .where(eq(staginggadhawaAgriculturalLand.familyId, recordId));
 
     const deaths = await ctx.db
       .select()
-      .from(stagingkerabariDeath)
-      .where(eq(stagingkerabariDeath.familyId, recordId));
+      .from(staginggadhawaDeath)
+      .where(eq(staginggadhawaDeath.familyId, recordId));
 
     const crops = await ctx.db
       .select()
-      .from(stagingkerabariCrop)
-      .where(eq(stagingkerabariCrop.familyId, recordId));
+      .from(staginggadhawaCrop)
+      .where(eq(staginggadhawaCrop.familyId, recordId));
 
     const animals = await ctx.db
       .select()
-      .from(stagingkerabariAnimal)
-      .where(eq(stagingkerabariAnimal.familyId, recordId));
+      .from(staginggadhawaAnimal)
+      .where(eq(staginggadhawaAnimal.familyId, recordId));
 
     const animalProducts = await ctx.db
       .select()
-      .from(stagingkerabariAnimalProduct)
-      .where(eq(stagingkerabariAnimalProduct.familyId, recordId));
+      .from(staginggadhawaAnimalProduct)
+      .where(eq(staginggadhawaAnimalProduct.familyId, recordId));
 
     // Begin transaction
     await ctx.db.transaction(async (tx: any) => {
@@ -326,7 +326,7 @@ async function performFamilySync(ctx: any, recordId: string) {
       // Insert individuals
       if (individuals.length > 0) {
         await tx
-          .insert(kerabariIndividual)
+          .insert(gadhawaIndividual)
           .values(individuals)
           .onConflictDoNothing();
       }
@@ -334,9 +334,9 @@ async function performFamilySync(ctx: any, recordId: string) {
       // Insert deaths data into production table
       if (deaths.length > 0) {
         await tx
-          .insert(kerabariDeath)
+          .insert(gadhawaDeath)
           .values(
-            deaths.map((death: StagingkerabariDeath) => ({
+            deaths.map((death: StaginggadhawaDeath) => ({
               id: death.id,
               famliyId: death.familyId,
               wardNo: death.wardNo,
@@ -353,18 +353,18 @@ async function performFamilySync(ctx: any, recordId: string) {
 
       // Insert crops
       if (crops.length > 0) {
-        await tx.insert(kerabariCrop).values(crops).onConflictDoNothing();
+        await tx.insert(gadhawaCrop).values(crops).onConflictDoNothing();
       }
 
       // Insert animals
       if (animals.length > 0) {
-        await tx.insert(kerabariAnimal).values(animals).onConflictDoNothing();
+        await tx.insert(gadhawaAnimal).values(animals).onConflictDoNothing();
       }
 
       // Insert animal products
       if (animalProducts.length > 0) {
         await tx
-          .insert(kerabariAnimalProduct)
+          .insert(gadhawaAnimalProduct)
           .values(animalProducts)
           .onConflictDoNothing();
       }
@@ -372,7 +372,7 @@ async function performFamilySync(ctx: any, recordId: string) {
       // Insert agricultural lands
       if (agriculturalLands.length > 0) {
         await tx
-          .insert(kerabariAgriculturalLand)
+          .insert(gadhawaAgriculturalLand)
           .values(agriculturalLands)
           .onConflictDoNothing();
       }
@@ -381,8 +381,8 @@ async function performFamilySync(ctx: any, recordId: string) {
       await tx
         .insert(stagingToProduction)
         .values({
-          staging_table: 'staging_kerabari_family',
-          production_table: 'kerabari_family',
+          staging_table: 'staging_gadhawa_family',
+          production_table: 'gadhawa_family',
           recordId: recordId,
         })
         .onConflictDoNothing();

@@ -8,8 +8,8 @@ config(); // Initialize dotenv
 
 let connection;
 try {
-  console.log('Attempting to connect to:', env.BUDDHASHANTI_DATABASE_URL);
-  connection = postgres(env.BUDDHASHANTI_DATABASE_URL, {
+  console.log('Attempting to connect to:', env.GADHAWA_DATABASE_URL);
+  connection = postgres(env.GADHAWA_DATABASE_URL, {
     max_lifetime: 10,
     connect_timeout: 10,
   });

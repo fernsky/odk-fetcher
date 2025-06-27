@@ -1,7 +1,6 @@
 import { RawFamily } from './types';
-import { jsonToPostgres, decodeSingleChoice } from '@app/common/utils/data';
 import { sql } from 'drizzle-orm';
-
+import { decodeSingleChoice, jsonToPostgres } from '@app/common/utils/data';
 import { familyChoices } from '../../resources/family';
 
 export async function parseDeaths(r: RawFamily, ctx: any) {

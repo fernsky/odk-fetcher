@@ -7,7 +7,7 @@ import {
   stagingToProduction,
   users,
   wards,
-} from '@app/modules/drizzle/kerabari-db/schema';
+} from '@app/modules/drizzle/gadhawa-db/schema';
 
 export async function syncBuildingSurvey(
   recordId: string,
@@ -275,8 +275,8 @@ async function performBuildingSync(ctx: any, recordId: string) {
     await ctx.db
       .insert(stagingToProduction)
       .values({
-        staging_table: 'staging_kerabari_buildings',
-        production_table: 'kerabari_buildings',
+        staging_table: 'staging_gadhawa_buildings',
+        production_table: 'gadhawa_buildings',
         recordId: recordId,
       })
       .onConflictDoNothing();

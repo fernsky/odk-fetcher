@@ -1,11 +1,11 @@
 import axios from 'axios';
 import { surveyData } from '@app/modules/drizzle/buddhashanti-db/schema';
-import { getODKToken } from '../buddhashanti-services/odk/auth';
-import { handleAttachment } from '../buddhashanti-services/attachment/handler';
-import { ODKConfig } from '../buddhashanti-services/types';
-import { handleBuildingFlow } from '../buddhashanti-services/sync/building/building';
-import { handleBusinessFlow } from '../buddhashanti-services/sync/business/business';
-import { handleFamilyFlow } from '../buddhashanti-services/sync/family/family';
+import { getODKToken } from './odk/auth';
+import { handleAttachment } from './attachment/handler';
+import { ODKConfig } from './types';
+import { handleBuildingFlow } from './sync/building/building';
+import { handleBusinessFlow } from './sync/business/business';
+import { handleFamilyFlow } from './sync/family/family';
 
 export const fetchSurveySubmissions = async (
   {

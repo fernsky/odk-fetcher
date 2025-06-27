@@ -423,7 +423,7 @@ export async function parseAndInsertInStaging(r: RawBusiness, ctx: any) {
 
       try {
         const mainStatement = jsonToPostgres(
-          'staging_kerabari_business',
+          'staging_gadhawa_business',
           mainPayload,
         );
         if (mainStatement) {
@@ -450,7 +450,7 @@ export async function parseAndInsertInStaging(r: RawBusiness, ctx: any) {
           try {
             for (const crop of cropType.data) {
               const statement = jsonToPostgres(
-                'staging_kerabari_business_crops',
+                'staging_gadhawa_business_crops',
                 {
                   business_id: r.__id,
                   ward_no: r.b_addr.ward_no,
@@ -473,7 +473,7 @@ export async function parseAndInsertInStaging(r: RawBusiness, ctx: any) {
         try {
           for (const animal of animals) {
             const statement = jsonToPostgres(
-              'staging_kerabari_business_animals',
+              'staging_gadhawa_business_animals',
               {
                 business_id: r.__id,
                 ...animal,
@@ -495,7 +495,7 @@ export async function parseAndInsertInStaging(r: RawBusiness, ctx: any) {
         try {
           for (const product of animalProducts) {
             const statement = jsonToPostgres(
-              'staging_kerabari_business_animal_products',
+              'staging_gadhawa_business_animal_products',
               {
                 business_id: r.__id,
                 ...product,

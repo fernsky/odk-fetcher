@@ -245,7 +245,7 @@ export async function parseAndInsertInStaging(data: RawBuildingData, ctx: any) {
     road_status: r.road_status, // e.g., Graveled, Paved
   };
 
-  const statement = jsonToPostgres('staging_kerabari_buildings', payload);
+  const statement = jsonToPostgres('staging_gadhawa_buildings', payload);
 
   if (statement) {
     await ctx.db.execute(sql.raw(statement));

@@ -113,20 +113,22 @@ async function uploadToStorage(
   attachmentName: string,
   attachment: Buffer,
 ) {
-  if (!process.env.BUDDHASHANTI_BUCKET_NAME) {
-    console.error('Missing BUDDHASHANTI_BUCKET_NAME environment variable');
+  if (!process.env.GADHAWA_BUCKET_NAME) {
+    console.error('Missing GADHAWA_BUCKET_NAME environment variable');
     throw new Error('Bucket name not found');
   }
+
+  console.log('Bucket Name: ', process.env.GADHAWA_BUCKET_NAME);
 
   const lastSevenDigits = submissionId.slice(-7);
   const newAttachmentName = `${lastSevenDigits}_${attachmentName}`;
   console.log(
-    `Uploading to bucket: ${process.env.BUDDHASHANTI_BUCKET_NAME}/${newAttachmentName}`,
+    `Uploading to bucket: ${process.env.GADHAWA_BUCKET_NAME}/${newAttachmentName}`,
   );
 
   try {
     await ctx.minio.putObject(
-      process.env.BUDDHASHANTI_BUCKET_NAME,
+      process.env.GADHAWA_BUCKET_NAME,
       newAttachmentName,
       attachment,
     );

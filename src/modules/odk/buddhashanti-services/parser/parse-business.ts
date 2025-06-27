@@ -2,9 +2,9 @@ import { sql } from 'drizzle-orm';
 import { RawBusiness } from './business/types';
 import {
   processGPSData,
-  jsonToPostgres,
   decodeMultipleChoices,
   decodeSingleChoice,
+  jsonToPostgres,
 } from '@app/common/utils/data';
 import { businessChoices } from '../resources/business';
 

@@ -29,7 +29,7 @@ export async function parseAnimals(r: RawFamily, ctx: any) {
       if (i.animn.total_animals) animal.total_animals = i.animn.total_animals;
     }
 
-    const animalStatement = jsonToPostgres('staging_kerabari_animal', animal);
+    const animalStatement = jsonToPostgres('staging_gadhawa_animal', animal);
 
     if (animalStatement) {
       await ctx.db.execute(sql.raw(animalStatement));

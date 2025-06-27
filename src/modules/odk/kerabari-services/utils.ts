@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { surveyData } from '@app/modules/drizzle/kerabari-db/schema';
+import { surveyData } from '@app/modules/drizzle/gadhawa-db/schema';
 import { getODKToken } from './odk/auth';
 import { handleAttachment } from './attachment/handler';
 import { ODKConfig } from './types';
@@ -105,7 +105,7 @@ export const fetchSurveySubmissions = async (
       }
 
       switch (formId) {
-        case 'kerabari_building_survey':
+        case 'gadhawa_building_survey':
           try {
             await handleBuildingFlow(submission, ctx);
           } catch (error) {
@@ -115,7 +115,7 @@ export const fetchSurveySubmissions = async (
             );
           }
           break;
-        case 'kerabari_business_survey':
+        case 'gadhawa_business_survey':
           try {
             await handleBusinessFlow(submission, ctx);
           } catch (error) {
@@ -125,7 +125,7 @@ export const fetchSurveySubmissions = async (
             );
           }
           break;
-        case 'kerabari_family_survey':
+        case 'gadhawa_family_survey':
           try {
             await handleFamilyFlow(submission, ctx);
           } catch (error) {

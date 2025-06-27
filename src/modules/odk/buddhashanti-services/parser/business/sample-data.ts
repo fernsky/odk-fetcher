@@ -1,5 +1,5 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const agriData = {
+export const buddhashantiAgriData = {
   audio_monitoring: '1737201362376.m4a',
   NBIZ: null,
   enumerator_introduction: {

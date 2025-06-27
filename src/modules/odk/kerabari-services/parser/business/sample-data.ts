@@ -1,5 +1,5 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const kerabariAgriData = {
+export const gadhawaAgriData = {
   audio_monitoring: '1737201362376.m4a',
   NBIZ: null,
   enumerator_introduction: {

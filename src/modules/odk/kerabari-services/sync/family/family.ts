@@ -1,5 +1,5 @@
 import { parseAndInsertInStaging } from '../../parser/family/main';
-import { stagingToProduction } from '@app/modules/drizzle/kerabari-db/schema';
+import { stagingToProduction } from '@app/modules/drizzle/gadhawa-db/schema';
 import { eq } from 'drizzle-orm';
 import { syncFamilySurvey } from './sync';
 

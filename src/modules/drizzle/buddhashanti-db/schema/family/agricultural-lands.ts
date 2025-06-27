@@ -16,7 +16,7 @@ const buddhashantiAgriculturalLand = pgTable('buddhashanti_agricultural_land', {
 });
 
 export default buddhashantiAgriculturalLand;
-export const stagingBuddhashantiAgriculturalLand = pgTable(
+export const stagingbuddhashantiAgriculturalLand = pgTable(
   'staging_buddhashanti_agricultural_land',
   {
     id: varchar('id', { length: 48 }).primaryKey().notNull(),
@@ -33,7 +33,7 @@ export const stagingBuddhashantiAgriculturalLand = pgTable(
   },
 );
 
-export type BuddhashantiAgriculturalLand =
+export type buddhashantiAgriculturalLand =
   typeof buddhashantiAgriculturalLand.$inferSelect;
-export type StagingBuddhashantiAgriculturalLand =
-  typeof stagingBuddhashantiAgriculturalLand.$inferSelect;
+export type StagingbuddhashantiAgriculturalLand =
+  typeof stagingbuddhashantiAgriculturalLand.$inferSelect;

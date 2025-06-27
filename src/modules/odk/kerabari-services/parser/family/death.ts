@@ -25,7 +25,7 @@ export async function parseDeaths(r: RawFamily, ctx: any) {
       ),
     };
 
-    const deathStatement = jsonToPostgres('staging_kerabari_death', death);
+    const deathStatement = jsonToPostgres('staging_gadhawa_death', death);
 
     if (deathStatement) {
       await ctx.db.execute(sql.raw(deathStatement));

@@ -24,7 +24,8 @@ export const decodeMultipleChoices = <T extends Record<string, string>>(
   choices: T,
 ): string[] | undefined => {
   try {
-    const splitUserChoices = value.split(' ');
+    if (!value || value?.trim() == '') return undefined;
+    const splitUserChoices = value?.split(' ') ?? [];
     const mappedUserChoices = splitUserChoices.map((choice) =>
       decodeSingleChoice(choice as keyof T, choices),
     );

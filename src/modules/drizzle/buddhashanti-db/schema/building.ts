@@ -138,9 +138,7 @@ export const buildings = pgTable('buddhashanti_buildings', {
   areaId: varchar('area_id', { length: 255 }).references(() => areas.id),
   enumeratorId: varchar('user_id', { length: 21 }).references(() => users.id),
   wardId: integer('ward_id').references(() => wards.wardNumber),
-  buildingToken: varchar('building_token', { length: 255 }).references(
-    () => buildingTokens.token,
-  ),
+  buildingToken: varchar('building_token', { length: 255 }),
 
   // Flags to identify the correctness of given input data
   isAreaValid: boolean('is_area_invalid').default(false),
@@ -150,17 +148,14 @@ export const buildings = pgTable('buddhashanti_buildings', {
 });
 
 // Table for building edit requests
-export const buildingEditRequests = pgTable(
-  'buddhashanti_building_edit_requests',
-  {
-    id: varchar('id', { length: 48 }).primaryKey(),
-    buildingId: varchar('building_id', { length: 48 }).references(
-      () => buildings.id,
-    ),
-    message: text('message').notNull(), // Description of what needs to be edited
-    requestedAt: timestamp('requested_at').defaultNow(),
-  },
-);
+export const buildingEditRequests = pgTable('buddhashanti_building_edit_requests', {
+  id: varchar('id', { length: 48 }).primaryKey(),
+  buildingId: varchar('building_id', { length: 48 }).references(
+    () => buildings.id,
+  ),
+  message: text('message').notNull(), // Description of what needs to be edited
+  requestedAt: timestamp('requested_at').defaultNow(),
+});
 
 export type BuildingEditRequest = typeof buildingEditRequests.$inferSelect;
 

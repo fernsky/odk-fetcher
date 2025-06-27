@@ -448,7 +448,7 @@ export interface RawBusiness {
   business_location_ownership_oth: string | null;
   emp: EmploymentDetails;
   b_location: {
-    type: 'Point';
+    type: "Point";
     coordinates: [number, number, number];
     properties: { accuracy: number };
   };

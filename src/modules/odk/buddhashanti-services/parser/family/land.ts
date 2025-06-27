@@ -1,7 +1,8 @@
 import { RawFamily } from './types';
+
 import { sql } from 'drizzle-orm';
-import { familyChoices } from '../../resources/family';
 import { decodeSingleChoice, jsonToPostgres } from '@app/common/utils/data';
+import { familyChoices } from '../../resources/family';
 
 export async function parseAgriculturalLand(r: RawFamily, ctx: any) {
   for (const i of r.agri.agricultural_land) {

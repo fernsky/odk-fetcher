@@ -9,31 +9,31 @@ import {
 import {
   family,
   stagingFamily,
-} from '@app/modules/drizzle/buddhashanti-db/schema';
+} from '@app/modules/drizzle/buddhashanti-db/schema/family/family';
 import {
-  stagingBuddhashantiIndividual,
+  stagingbuddhashantiIndividual,
   buddhashantiIndividual,
 } from '@app/modules/drizzle/buddhashanti-db/schema/family/individual';
 import {
-  stagingBuddhashantiDeath,
+  stagingbuddhashantiDeath,
   buddhashantiDeath,
 } from '@app/modules/drizzle/buddhashanti-db/schema/family/deaths';
 import {
-  stagingBuddhashantiCrop,
+  stagingbuddhashantiCrop,
   buddhashantiCrop,
 } from '@app/modules/drizzle/buddhashanti-db/schema/family/crops';
 import {
-  stagingBuddhashantiAnimal,
+  stagingbuddhashantiAnimal,
   buddhashantiAnimal,
 } from '@app/modules/drizzle/buddhashanti-db/schema/family/animals';
 import {
-  stagingBuddhashantiAnimalProduct,
+  stagingbuddhashantiAnimalProduct,
   buddhashantiAnimalProduct,
 } from '@app/modules/drizzle/buddhashanti-db/schema/family/animal-products';
 
-import { StagingBuddhashantiDeath } from '@app/modules/drizzle/buddhashanti-db/schema/family/deaths';
+import { StagingbuddhashantiDeath } from '@app/modules/drizzle/buddhashanti-db/schema/family/deaths';
 import buddhashantiAgriculturalLand, {
-  stagingBuddhashantiAgriculturalLand,
+  stagingbuddhashantiAgriculturalLand,
 } from '@app/modules/drizzle/buddhashanti-db/schema/family/agricultural-lands';
 
 export async function syncFamilySurvey(recordId: string, data: any, ctx: any) {
@@ -225,33 +225,33 @@ async function performFamilySync(ctx: any, recordId: string) {
     // Get related data
     const individuals = await ctx.db
       .select()
-      .from(stagingBuddhashantiIndividual)
-      .where(eq(stagingBuddhashantiIndividual.familyId, recordId));
+      .from(stagingbuddhashantiIndividual)
+      .where(eq(stagingbuddhashantiIndividual.familyId, recordId));
 
     const agriculturalLands = await ctx.db
       .select()
-      .from(stagingBuddhashantiAgriculturalLand)
-      .where(eq(stagingBuddhashantiAgriculturalLand.familyId, recordId));
+      .from(stagingbuddhashantiAgriculturalLand)
+      .where(eq(stagingbuddhashantiAgriculturalLand.familyId, recordId));
 
     const deaths = await ctx.db
       .select()
-      .from(stagingBuddhashantiDeath)
-      .where(eq(stagingBuddhashantiDeath.familyId, recordId));
+      .from(stagingbuddhashantiDeath)
+      .where(eq(stagingbuddhashantiDeath.familyId, recordId));
 
     const crops = await ctx.db
       .select()
-      .from(stagingBuddhashantiCrop)
-      .where(eq(stagingBuddhashantiCrop.familyId, recordId));
+      .from(stagingbuddhashantiCrop)
+      .where(eq(stagingbuddhashantiCrop.familyId, recordId));
 
     const animals = await ctx.db
       .select()
-      .from(stagingBuddhashantiAnimal)
-      .where(eq(stagingBuddhashantiAnimal.familyId, recordId));
+      .from(stagingbuddhashantiAnimal)
+      .where(eq(stagingbuddhashantiAnimal.familyId, recordId));
 
     const animalProducts = await ctx.db
       .select()
-      .from(stagingBuddhashantiAnimalProduct)
-      .where(eq(stagingBuddhashantiAnimalProduct.familyId, recordId));
+      .from(stagingbuddhashantiAnimalProduct)
+      .where(eq(stagingbuddhashantiAnimalProduct.familyId, recordId));
 
     // Begin transaction
     await ctx.db.transaction(async (tx: any) => {
@@ -336,7 +336,7 @@ async function performFamilySync(ctx: any, recordId: string) {
         await tx
           .insert(buddhashantiDeath)
           .values(
-            deaths.map((death: StagingBuddhashantiDeath) => ({
+            deaths.map((death: StagingbuddhashantiDeath) => ({
               id: death.id,
               famliyId: death.familyId,
               wardNo: death.wardNo,

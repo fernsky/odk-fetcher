@@ -1,13 +1,12 @@
 import { RawFamily } from './types';
-
+import { sql } from 'drizzle-orm';
 import { familyChoices } from '../../resources/family';
 import {
-  jsonToPostgres,
-  decodeSingleChoice,
-  decodeMultipleChoices,
   processGPSData,
+  decodeMultipleChoices,
+  decodeSingleChoice,
+  jsonToPostgres,
 } from '@app/common/utils/data';
-import { sql } from 'drizzle-orm';
 
 export async function parseFamilyBase(r: RawFamily, ctx: any) {
   const gpsData = processGPSData(r.id.tmp_location);
@@ -122,7 +121,6 @@ export async function parseFamilyBase(r: RawFamily, ctx: any) {
   );
 
   if (mainStatement) {
-    console.log('Inserting family data into staging database');
     await ctx.db.execute(sql.raw(mainStatement));
   }
 }

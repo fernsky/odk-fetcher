@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from "axios";
 
 export async function getODKToken(
   siteUrl: string,
@@ -12,7 +12,7 @@ export async function getODKToken(
     });
     return response.data.token;
   } catch (error) {
-    console.error('Error fetching ODK token:', error);
-    throw new Error('Failed to fetch ODK token');
+    console.error("Error fetching ODK token:", error);
+    throw new Error("Failed to fetch ODK token");
   }
 }

@@ -1,6 +1,6 @@
-import { mapBuildingChoices } from '../resources/building';
 import { sql } from 'drizzle-orm';
-import { jsonToPostgres, processGPSData } from '@app/common/utils/data';
+import { processGPSData, jsonToPostgres } from '@app/common/utils/data';
+import { mapBuildingChoices } from '../resources/building';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const data = {
