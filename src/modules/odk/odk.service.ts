@@ -61,7 +61,7 @@ export class OdkService {
     } = surveyForm[0];
 
     console.log('Fetching submissions for Kerabari form:', surveyForm[0].name);
-    const timeIntervals = generateHourlyIntervals(startDate, endDate);
+    const timeIntervals = generateWeeklyIntervals(startDate, endDate);
     console.log(`Generated ${timeIntervals.length} hourly intervals`);
 
     for (const [index, interval] of timeIntervals.entries()) {
@@ -114,7 +114,7 @@ export class OdkService {
       'Fetching submissions for Buddhashanti form:',
       surveyForm[0].name,
     );
-    const timeIntervals = generateHourlyIntervals(startDate, endDate);
+    const timeIntervals = generateWeeklyIntervals(startDate, endDate);
     console.log(`Generated ${timeIntervals.length} hourly intervals`);
 
     for (const [index, interval] of timeIntervals.entries()) {
@@ -285,7 +285,7 @@ export class OdkService {
     } = surveyForm[0];
 
     console.log('Fetching submissions for Duduwa form:', surveyForm[0].name);
-    const timeIntervals = generateHourlyIntervals(startDate, endDate);
+    const timeIntervals = generateWeeklyIntervals(startDate, endDate);
     console.log(`Generated ${timeIntervals.length} hourly intervals`);
 
     for (const [index, interval] of timeIntervals.entries()) {

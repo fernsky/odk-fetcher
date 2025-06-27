@@ -6,26 +6,26 @@ import {
   stagingToProduction,
   users,
   wards,
-} from '@app/modules/drizzle/gadhawa-db/schema';
+} from '@app/modules/drizzle/kerabari-db/schema';
 import {
   business,
   stagingBusiness,
-} from '@app/modules/drizzle/gadhawa-db/schema/business/business';
+} from '@app/modules/drizzle/kerabari-db/schema/business/business';
 import {
   businessCrops,
   StagingBusinessCrop,
   stagingBusinessCrops,
-} from '@app/modules/drizzle/gadhawa-db/schema/business/business-crops';
+} from '@app/modules/drizzle/kerabari-db/schema/business/business-crops';
 import {
   businessAnimalProducts,
   StagingBusinessAnimalProduct,
   stagingBusinessAnimalProducts,
-} from '@app/modules/drizzle/gadhawa-db/schema/business/business-animal-products';
+} from '@app/modules/drizzle/kerabari-db/schema/business/business-animal-products';
 import {
   businessAnimals,
   StagingBusinessAnimal,
   stagingBusinessAnimals,
-} from '@app/modules/drizzle/gadhawa-db/schema/business/business-animals';
+} from '@app/modules/drizzle/kerabari-db/schema/business/business-animals';
 
 export async function syncBusinessSurvey(
   recordId: string,
@@ -481,8 +481,8 @@ async function performBusinessSync(ctx: any, recordId: string) {
     await ctx.db
       .insert(stagingToProduction)
       .values({
-        staging_table: 'staging_gadhawa_buildings',
-        production_table: 'gadhawa_buildings',
+        staging_table: 'staging_kerabari_buildings',
+        production_table: 'kerabari_buildings',
         recordId: recordId,
       })
       .onConflictDoNothing();

@@ -116,7 +116,7 @@ export async function parseFamilyBase(r: RawFamily, ctx: any) {
   };
 
   const mainStatement = jsonToPostgres(
-    'staging_gadhawa_family',
+    'staging_kerabari_family',
     mainFamilyTable,
   );
 

@@ -1,5 +1,5 @@
 import { parseAndInsertInStaging } from '../../parser/parse-business';
-import { stagingToProduction } from '@app/modules/drizzle/gadhawa-db/schema';
+import { stagingToProduction } from '@app/modules/drizzle/kerabari-db/schema';
 import { eq } from 'drizzle-orm';
 import { syncBusinessSurvey } from './sync';
 
