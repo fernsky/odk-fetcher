@@ -63,11 +63,11 @@ export async function parseFamilyBase(r: RawFamily, ctx: any) {
     solid_waste_other: r.hh.solid_waste_oth,
 
     // Energy and Facilities
-    primary_cooking_fuel: decodeSingleChoice(
+    primary_cooking_fuel: decodeMultipleChoices(
       r.hh.primary_cf,
       familyChoices.cooking_fuel,
     ),
-    primary_energy_source: decodeSingleChoice(
+    primary_energy_source: decodeMultipleChoices(
       r.hh.primary_es,
       familyChoices.energy_source,
     ),
